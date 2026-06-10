@@ -249,54 +249,6 @@ class UeyeCamera:
         return self.__shared_memory
 
     # ##### SETTER #####
-    @synchronization_queue.setter
-    def synchronization_queue(self, value: Queue) -> None:
-        """
-        Setter for the attribute '__synchronization_queue'.
-
-        Args:
-            value (Queue): The new value for the attribute '__synchronization_queue'.
-
-        Returns:
-            ():
-        """
-
-        self.__synchronization_queue = value
-
-        return
-
-    @rgb_recording_path.setter
-    def rgb_recording_path(self, value: ValueProxy[str]) -> None:
-        """
-        Setter for the attribute '__rgb_recording_path'.
-
-        Args:
-            value (ValueProxy[str]): The new value for the attribute '__rgb_recording_path'.
-
-        Returns:
-            ():
-        """
-
-        self.__rgb_recording_path = value
-
-        return
-
-    @rgb_recording_active.setter
-    def rgb_recording_active(self, value: EventProxy) -> None:
-        """
-        Setter for the attribute '__rgb_recording_active'.
-
-        Args:
-            value (EventProxy): The new value for the attribute '__rgb_recording_active'.
-
-        Returns:
-            ():
-        """
-
-        self.__rgb_recording_active = value
-
-        return
-
     @png_writer.setter
     def png_writer(self, value: PNGWriterCV | None) -> None:
         """
@@ -326,54 +278,6 @@ class UeyeCamera:
         """
 
         self.__camera_available = value
-
-        return
-
-    @ueye_handle.setter
-    def ueye_handle(self, value: ueye.HIDS) -> None:
-        """
-        Setter for the attribute '__ueye_handle'.
-
-        Args:
-            value (ueye.HIDS): The new value for the attribute '__ueye_handle'.
-
-        Returns:
-            ():
-        """
-
-        self.__ueye_handle = value
-
-        return
-
-    @memory_pointer.setter
-    def memory_pointer(self, value: ueye.c_mem_p) -> None:
-        """
-        Setter for the attribute '__memory_pointer'.
-
-        Args:
-            value (ueye.c_mem_p): The new value for the attribute '__memory_pointer'.
-
-        Returns:
-            ():
-        """
-
-        self.__memory_pointer = value
-
-        return
-
-    @memory_id.setter
-    def memory_id(self, value: ueye.int) -> None:
-        """
-        Setter for the attribute '__memory_id'.
-
-        Args:
-            value (ueye.int): The new value for the attribute '__memory_id'.
-
-        Returns:
-            ():
-        """
-
-        self.__memory_id = value
 
         return
 

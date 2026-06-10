@@ -61,7 +61,7 @@ class StereoCalibrationGUI:
 
         # Get the parameters from the configuration file
         self.__gui_config = configparser.ConfigParser()
-        
+
         self.__gui_config.read(Path(__file__).parents[2] / "parameter" / "gui.ini")
 
         # Read the data capture parameters from the configuration file
@@ -742,21 +742,6 @@ class StereoCalibrationGUI:
         return self.__stop_event
 
     # ##### SETTER #####
-    @page.setter
-    def page(self, value: ft.Page) -> None:
-        """
-        Setter for the attribute '__page'.
-
-        Args:
-            value (ft.Page): The new value for the attribute '__page'.
-
-        Returns:
-            ():
-        """
-
-        self.__page = value
-
-        return
 
     # ##### UI #####
     def _create_image_titles(self) -> ft.Row:

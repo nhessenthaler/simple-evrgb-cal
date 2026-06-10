@@ -80,28 +80,6 @@ class BlueCustomIconButton(ft.IconButton):
 
 
 @ft.control
-class RedCustomIconButton(ft.IconButton):
-    """Custom button class for a standard red button using AI Traqc colors scheme."""
-
-    color: ft.Colors = ft.Colors.WHITE
-    icon_color = ft.Colors.WHITE
-    bgcolor: ft.Colors = "#e30613"
-    style: ft.ButtonStyle = field(
-        default_factory=lambda: ft.ButtonStyle(
-            padding=12,
-            shape=ft.RoundedRectangleBorder(radius=4),
-            mouse_cursor={
-                ft.ControlState.HOVERED: ft.MouseCursor.CLICK,
-                ft.ControlState.DEFAULT: ft.MouseCursor.BASIC,
-            },
-            elevation=8,
-            overlay_color="#c20510",
-            text_style=ft.TextStyle(weight="bold", size=18),
-        )
-    )
-
-
-@ft.control
 class BlueCustomMediumText(ft.Text):
     """Custom text class for a standard, medium size blue text using AI Traqc colors scheme."""
 

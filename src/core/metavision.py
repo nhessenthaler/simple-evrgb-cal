@@ -80,32 +80,6 @@ def check_serial_number_validity(serial: str) -> bool:
     return t_is_valid
 
 
-def open_events_iterator(prophesee_device: Device | None, file_path: str | Path | None) -> EventsIterator | None:
-    """
-    Function that opens an EventsIterator for a given event file or a live stream from a Prophesee device.
-    If both file_path and serial are provided, the function prioritizes opening the device.
-
-    Args:
-        prophesee_device (Device | None): Handle of the Prophesee device to open a live stream from. If None, no live stream is opened.
-        file_path (str | Path | None): Path to the event file. Supported formats are .raw and .hdf5. If None, no file is opened.
-
-
-    Returns:
-        events_iterator (EventsIterator | None): EventsIterator object for the opened event stream, or None if neither a valid file nor a valid serial number is provided.
-    """
-
-    # Prioritize opening the device if both parameters are provided
-    if prophesee_device is not None:
-        return EventsIterator.from_device(prophesee_device)
-
-    if file_path is not None and check_file_exists(file_path):
-        return EventsIterator(str(file_path))
-
-    print_error("No valid prophesee device handle or file path provided - Can't open event stream iterator")
-
-    return None
-
-
 def open_camera_from_serial(serial: str) -> Camera | None:
     """
     Function that opens a camera stream from a given serial number.
@@ -124,45 +98,6 @@ def open_camera_from_serial(serial: str) -> Camera | None:
         return None
 
     return Camera.from_serial(serial)
-
-
-def open_device_from_serial(serial: str) -> Device | None:
-    """
-    Function that opens a Prophesee device from a given serial number.
-    Required format of the serial number is the one returned by get_available_prophesee_devices().
-    Valid serial number example: e.g. "00050271". Function returns None if the serial number is invalid.
-
-    Args:
-        serial (str): Serial number of the Prophesee device.
-
-    Returns:
-        device (Device | None): Device object representing the opened Prophesee device, or None if the serial number is invalid.
-    """
-
-    if not check_serial_number_validity(serial):
-        print_error(f"Camera with serial number {serial} is not connected. Can't open camera stream")
-        return None
-
-    return DeviceDiscovery.open(serial)
-
-
-def open_stream_from_file(file_path: str | Path) -> Camera | None:
-    """
-    Function that opens a camera stream from a given event file.
-    Supported file formats are .raw or .hdf5. Function returns None if the file does not exist.
-
-    Args:
-        file_path (str | Path): Path to the event file.
-
-    Returns:
-        camera (Camera | None): Camera object representing the opened stream, or None if the file does not exist.
-    """
-
-    if not check_file_exists(file_path):
-        print_error(f"Event file {Path(file_path).name} does not exist. Can't open event stream")
-        return None
-
-    return Camera.from_file(file_path)
 
 
 def get_camera_dimension(camera: Camera) -> tuple[int, int]:
@@ -256,51 +191,6 @@ def load_camera_settings(camera: Camera, settings_file_path: str | Path) -> bool
     except Exception as e:
         print_error(f"Failed to load camera settings from {Path(settings_file_path).name}: {e}")
         return False
-
-
-def get_frame_window_threaded(camera: Camera, title: str, width: int, height: int) -> MTWindow | None:
-    """
-    Function that creates and returns a MTWindow for displaying frames from the given camera.
-    MTWindow uses a separate thread for rendering, yielding better performance.
-
-    Args:
-        camera (Camera): Camera object.
-        title (str): Title of the window.
-        width (int): Width of the window.
-        height (int): Height of the window.
-
-    Returns:
-        window (MTWindow | None): MTWindow object for displaying frames, or None if the camera is not initialized.
-    """
-
-    if camera is None:
-        print_error("Camera is not initialized. Can't create frame window")
-        return None
-
-    return MTWindow(title=title, width=width, height=height, mode=BaseWindow.RenderMode.BGR, open_directly=True)
-
-
-def register_window_keyboard_callback(window: MTWindow, key_events: list[UIKeyEvent]) -> None:
-    """
-    Function that registers a keyboard callback for the given MTWindow.
-    The callback closes the window when the registered key event occurs.
-
-    Args:
-        window (MTWindow): MTWindow object.
-        key_events (list[UIKeyEvent]): List of key events that trigger the window to close.
-
-    Returns:
-        ():
-    """
-
-    # Register keyboard callback to close the window on specific key event
-    def keyboard_cb(key, scancode, action, mods):
-        if key in key_events:
-            window.set_close_flag()
-
-    window.set_keyboard_callback(keyboard_cb)
-
-    return
 
 
 def get_hdf5_event_file_writer() -> HDF5EventFileWriter | None:
@@ -459,83 +349,4 @@ def stop_event_recording(writer: HDF5EventFileWriter) -> bool:
 
     except Exception as e:
         print_error(f"Failed to stop event recording: {e}")
-        return False
-
-
-def save_events_as_evreal_npy(
-    events: np.ndarray,
-    output_dir: str | Path,
-    frame_width: int,
-    frame_height: int,
-    frame_rate: float = 25.0,
-) -> bool:
-    """
-    Function that saves a Metavision structured event array in the EVREAL .npy format.
-
-    The output directory will contain:
-        events_xy.npy            — (N, 2)       uint16  array of [x, y] pixel coordinates
-        events_ts.npy            — (N,)          float64 array of timestamps in seconds
-        events_p.npy             — (N,)          uint8   array of polarities (0 or 1)
-        images.npy               — (F, H, W, 1)  uint8   dummy black frames
-        images_ts.npy            — (F, 1)        float64 synthetic frame timestamps in seconds
-        image_event_indices.npy  — (F, 1)        int64   event index at each frame timestamp
-        metadata.json            — {"sensor_resolution": [height, width]}
-
-    Args:
-        events (np.ndarray): Metavision structured event array with fields x (uint16),
-            y (uint16), t (int64, microseconds), p (uint8).
-        output_dir (str | Path): Directory to write the EVREAL files into. Created if absent.
-        frame_width (int): Sensor width in pixels (written to metadata.json).
-        frame_height (int): Sensor height in pixels (written to metadata.json).
-        frame_rate (float): Synthetic frame rate in Hz used to generate image timestamps. Default is 25.0.
-
-    Returns:
-        success (bool): True if all files were saved successfully, False otherwise.
-    """
-
-    import json
-
-    if events is None or events.size == 0:
-        print_error("No events provided. Can't save EVREAL npy data")
-        return False
-
-    if frame_width <= 0 or frame_height <= 0:
-        print_error("Invalid frame dimensions provided. Can't save EVREAL npy data")
-        return False
-
-    try:
-        t_output_path = Path(output_dir)
-        t_output_path.mkdir(parents=True, exist_ok=True)
-
-        # Convert Metavision structured array fields
-        t_events_xy = np.column_stack((events["x"], events["y"])).astype(np.uint16)
-        t_events_ts = events["t"].astype(np.float64) * 1e-6  # µs → seconds
-        t_events_p = events["p"].astype(np.uint8)
-
-        # Generate synthetic image timestamps and corresponding event indices
-        t_start, t_end = t_events_ts[0], t_events_ts[-1]
-        t_frame_interval = 1.0 / frame_rate
-        t_image_timestamps = np.arange(t_start, t_end, t_frame_interval)
-        t_image_indices = np.searchsorted(t_events_ts, t_image_timestamps)
-
-        # Dummy black frames required by the EVREAL format
-        t_images = np.zeros((len(t_image_timestamps), frame_height, frame_width, 1), dtype=np.uint8)
-
-        # Save all npy files
-        np.save(t_output_path / "events_xy.npy", t_events_xy)
-        np.save(t_output_path / "events_ts.npy", t_events_ts)
-        np.save(t_output_path / "events_p.npy", t_events_p)
-        np.save(t_output_path / "images.npy", t_images)
-        np.save(t_output_path / "images_ts.npy", t_image_timestamps.reshape(-1, 1))
-        np.save(t_output_path / "image_event_indices.npy", t_image_indices.reshape(-1, 1))
-
-        # Save metadata
-        t_metadata = {"sensor_resolution": [frame_height, frame_width]}
-        with open(t_output_path / "metadata.json", "w", encoding="utf-8") as f:
-            json.dump(t_metadata, f)
-
-        return True
-
-    except Exception as e:
-        print_error(f"Failed to save EVREAL npy data to {Path(output_dir).name}: {e}")
         return False
