@@ -1309,12 +1309,12 @@ class StereoCalibration:
         Args:
             shm (RawSharedMemory): The shared memory to pull the raw frame from.
             b64_shm (B64SharedMemory): The shared memory to notify readiness.
-            current_frame (np.ndarray | None): The current frame stored in the backend.
-            initialized (bool): Flag indicating if the backend has been initialized.
+            current_frame (np.ndarray | None): The current frame stored in the core.
+            initialized (bool): Flag indicating if the core has been initialized.
 
         Returns:
             new_frame (np.ndarray | None): The latest frame pulled from shared memory.
-            initialized (bool): Flag indicating if the backend has been initialized.
+            initialized (bool): Flag indicating if the core has been initialized.
             new_received (bool): Flag indicating if a NEW frame was actually received in this call.
         """
 
@@ -1788,7 +1788,7 @@ class StereoCalibration:
     # ##### PUBLIC METHODS #####
     def run(self) -> None:
         """
-        Main method that runs the stereo calibration backend, continuously pulling frames, processing them, and managing the calibration state.
+        Main method that runs the stereo calibration core, continuously pulling frames, processing them, and managing the calibration state.
 
         Args:
             ():
@@ -1952,7 +1952,7 @@ class StereoCalibration:
         return
 
 
-def backend_worker(
+def core_worker(
     event_raw_shm: RawSharedMemory,
     rgb_raw_shm: RawSharedMemory,
     event_b64_shm: B64SharedMemory,
@@ -1964,7 +1964,7 @@ def backend_worker(
     current_calibration_phase: ValueProxy,
 ) -> None:
     """
-    Worker function for the stereo calibration backend process.
+    Worker function for the stereo calibration core process.
 
     Args:
         event_raw_shm (RawSharedMemory): Shared memory for raw event camera frames.
@@ -1983,7 +1983,7 @@ def backend_worker(
 
     # Run the main stereo calibration in a separate thread from this worker process
     try:
-        t_backend = StereoCalibration(
+        t_core = StereoCalibration(
             event_raw_shm,
             rgb_raw_shm,
             event_b64_shm,
@@ -1994,15 +1994,15 @@ def backend_worker(
             target_square_size,
             current_calibration_phase,
         )
-        t_backend.run()
+        t_core.run()
     except KeyboardInterrupt:
         pass
 
     return
 
 
-class BackendStereoCalibration:
-    """Class that provides all backend functionality for the stereo calibration process."""
+class CoreStereoCalibration:
+    """Class that provides all core functionality for the stereo calibration process."""
 
     def __init__(self, gui_instance: StereoCalibrationGUI | None = None) -> None:
 
@@ -2037,9 +2037,9 @@ class BackendStereoCalibration:
         )
         self.__prophesee_process.start()
 
-        # 3. New process for StereoCalibrationBackend (Processing) and start it
+        # 3. New process for StereoCalibration(Processing) and start it
         self.__stereo_calibration_process = multiprocessing.Process(
-            target=backend_worker,
+            target=core_worker,
             args=(
                 self.__gui_instance.event_raw_shared_memory,
                 self.__gui_instance.rgb_raw_shared_memory,

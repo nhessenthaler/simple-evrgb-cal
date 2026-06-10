@@ -33,7 +33,7 @@ from .flet_controls import (
 )
 from core import (
     B64SharedMemory,
-    BackendStereoCalibration,
+    CoreStereoCalibration,
     CalibrationPhase,
     CameraState,
     CameraType,
@@ -71,11 +71,11 @@ class StereoCalibrationGUI:
         self.__b64_shared_memory_size = self.__gui_config.getint("data_capture", "b64_shared_memory_size")
         self.__raw_shared_memory_size = self.__gui_config.getint("data_capture", "raw_shared_memory_size")
 
-        # Initialize raw image shared memory (producers: rgb and event cameras, consumer: calibration backend)
+        # Initialize raw image shared memory (producers: rgb and event cameras, consumer: calibration core)
         self.__event_raw_shared_memory = RawSharedMemory(size=self.__raw_shared_memory_size)
         self.__rgb_raw_shared_memory = RawSharedMemory(size=self.__raw_shared_memory_size)
 
-        # Initialize base64 shared-memory frame buffers (producer: calibration backend, consumer: calibration GUI)
+        # Initialize base64 shared-memory frame buffers (producer: calibration core, consumer: calibration GUI)
         self.__event_frame_shared_memory = B64SharedMemory(size=self.__b64_shared_memory_size)
         self.__rgb_frame_shared_memory = B64SharedMemory(size=self.__b64_shared_memory_size)
 
@@ -191,7 +191,7 @@ class StereoCalibrationGUI:
         self.__stereo_calibration_button_container = ft.Container(content=self.__blue_stereo_calibration_button)
 
         # Instantiate core calibration logic
-        self.__backend_stereo_calibration = BackendStereoCalibration(self)
+        self.__core_stereo_calibration = CoreStereoCalibration(self)
 
         # Initialize camera states
         self.__camera_states = {CameraType.EVENT: CameraState.INIT, CameraType.RGB: CameraState.INIT}
@@ -422,18 +422,18 @@ class StereoCalibrationGUI:
         return self.__stereo_calibration_active
 
     @property
-    def backend_stereo_calibration(self) -> BackendStereoCalibration:
+    def core_stereo_calibration(self) -> CoreStereoCalibration:
         """
-        Getter for the attribute '__backend_stereo_calibration'.
+        Getter for the attribute '__core_stereo_calibration'.
 
         Args:
             ():
 
         Returns:
-            backend_stereo_calibration (BackendStereoCalibration): The attribute '__backend_stereo_calibration'.
+            core_stereo_calibration (CoreStereoCalibration): The attribute '__core_stereo_calibration'.
         """
 
-        return self.__backend_stereo_calibration
+        return self.__core_stereo_calibration
 
     @property
     def camera_states(self) -> dict[CameraType, CameraState]:
@@ -898,7 +898,7 @@ class StereoCalibrationGUI:
     # ##### PRIVATE METHODS #####
     def _get_event_loop(self) -> None:
         """
-        Method to get or create the asyncio event loop for all asynchronous operations in the backend.
+        Method to get or create the asyncio event loop for all asynchronous operations in the core.
         Mainly required to display live video feed frames in the GUI.
 
         Args:
@@ -999,7 +999,7 @@ class StereoCalibrationGUI:
 
     def _stereo_calibration_button_clicked(self, _) -> None:
         """
-        Method that coordinates all backend logic for the stereo calibration process.
+        Method that coordinates all core logic for the stereo calibration process.
 
         Args:
             ():
@@ -1032,7 +1032,7 @@ class StereoCalibrationGUI:
     async def _timer_updater(self) -> None:
         """
         Asynchronous method to continuously update the timer text display in the GUI.
-        Reads the remaining time from the shared memory updated by the backend.
+        Reads the remaining time from the shared memory updated by the core.
 
         Args:
             ():
@@ -1051,7 +1051,7 @@ class StereoCalibrationGUI:
 
             t_is_calibration_active = self.stereo_calibration_active.is_set()
 
-            # Falling edge: backend cleared the flag externally (robot-assisted calibration finished)
+            # Falling edge: core cleared the flag externally (robot-assisted calibration finished)
             if t_was_calibration_active and not t_is_calibration_active:
                 self._reset_calibration_gui()
 
@@ -1131,7 +1131,7 @@ class StereoCalibrationGUI:
         """
 
         self.stop_event.set()
-        self.backend_stereo_calibration.terminate_processes()
+        self.core_stereo_calibration.terminate_processes()
         self.event_frame_shared_memory.close()
         self.rgb_frame_shared_memory.close()
         self.synchronization_queue.close()
@@ -1217,9 +1217,9 @@ class StereoCalibrationGUI:
             else:
                 # If the process has terminated, display an error placeholder in the image box
                 t_is_running = (
-                    self.backend_stereo_calibration.ueye_running()
+                    self.core_stereo_calibration.ueye_running()
                     if camera_type == CameraType.RGB
-                    else self.backend_stereo_calibration.prophesee_running()
+                    else self.core_stereo_calibration.prophesee_running()
                 )
 
                 if not t_is_running:
