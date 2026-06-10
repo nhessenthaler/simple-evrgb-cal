@@ -61,7 +61,8 @@ class StereoCalibrationGUI:
 
         # Get the parameters from the configuration file
         self.__gui_config = configparser.ConfigParser()
-        self.__gui_config.read(Path(__file__).parents[1] / "parameter" / "gui.ini")
+        
+        self.__gui_config.read(Path(__file__).parents[2] / "parameter" / "gui.ini")
 
         # Read the data capture parameters from the configuration file
         self.__image_width = self.__gui_config.getint("data_capture", "image_width")
@@ -98,7 +99,7 @@ class StereoCalibrationGUI:
 
         # Create phase display box
         self.__phase_label = ft.Text(
-            value="Status: Calibration inactive",
+            value="Status: Calibration Inactive",
             color=ft.Colors.WHITE,
             size=26,
             weight=ft.FontWeight.BOLD,
@@ -114,17 +115,17 @@ class StereoCalibrationGUI:
 
         # Initialize checkerboard square size from config
         self.__checkerboard_config = configparser.ConfigParser()
-        self.__checkerboard_config.read(Path(__file__).parents[1] / "parameter" / "stereo_calibration.ini")
+        self.__checkerboard_config.read(Path(__file__).parents[2] / "parameter" / "stereo_calibration.ini")
         t_initial_square_size = self.__checkerboard_config.getfloat("target", "target_square_size")
         self.__target_square_size = self.__shared_memory_manager.Value("d", t_initial_square_size)
         self.__capture_interval = self.__checkerboard_config.getfloat("recording", "capture_interval")
 
         # Compute fixed image box size and create an SVG placeholder
         self.__initialization_src = create_image_placeholder(
-            self.__image_width, self.__image_display_height, annotation="Kamerainitialisierung ..."
+            self.__image_width, self.__image_display_height, annotation="Camera Initialization ..."
         )
         self.__error_src = create_image_placeholder(
-            self.__image_width, self.__image_display_height, annotation="Verbindungsfehler ..."
+            self.__image_width, self.__image_display_height, annotation="Connection Error ..."
         )
 
         # Image placeholders (use placeholder so box always has defined content/size)
@@ -780,7 +781,7 @@ class StereoCalibrationGUI:
                 ),
                 ft.Container(
                     content=BlueCustomMediumText(
-                        "Event-based Camera:",
+                        "Event-Based Camera:",
                     ),
                     alignment=ft.Alignment.CENTER,
                     width=self.__image_width,
@@ -825,7 +826,7 @@ class StereoCalibrationGUI:
                 ft.Container(
                     content=ft.Row(
                         [
-                            BlueCustomMediumText("Quadratgröße:", size=18),
+                            BlueCustomMediumText("Square Size:", size=18),
                             self.decrease_size_button,
                             self.target_size_text,
                             self.increase_size_button,
@@ -971,7 +972,7 @@ class StereoCalibrationGUI:
         self.generate_target_button.update()
         self.stereo_calibration_button_container.update()
         self.current_calibration_phase.value = -1
-        self.phase_label.value = "Status: Calibration inactive"
+        self.phase_label.value = "Status: Calibration Inactive"
         self.phase_display.update()
 
         return
@@ -1078,7 +1079,7 @@ class StereoCalibrationGUI:
                 try:
                     t_new_label = CalibrationPhase(t_phase_value).label
                 except ValueError:
-                    t_new_label = "Status: Calibration inactive"
+                    t_new_label = "Status: Calibration Inactive"
                 if self.phase_label.value != t_new_label:
                     self.phase_label.value = t_new_label
                     self.phase_display.update()

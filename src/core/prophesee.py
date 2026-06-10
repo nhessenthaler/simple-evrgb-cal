@@ -60,11 +60,11 @@ class PropheseeCamera:
 
         # Load the configuration file for the camera parameters
         self.__camera_config = configparser.ConfigParser()
-        self.__camera_config.read(Path(__file__).parents[1] / "parameter" / "camera.ini")
+        self.__camera_config.read(Path(__file__).parents[2] / "parameter" / "camera.ini")
 
         # Load additional configuration file if specified (overwrites existing settings)
         if configuration_file_name != "camera.ini":
-            self.__camera_config.read(Path(__file__).parents[1] / "parameter" / configuration_file_name)
+            self.__camera_config.read(Path(__file__).parents[2] / "parameter" / configuration_file_name)
 
         # Parse the camera parameters from the configuration file
         self.__serial_number = self.__camera_config.get("prophesee", "serial_number")
@@ -73,14 +73,9 @@ class PropheseeCamera:
         self.__firmware_version = self.__camera_config.get("prophesee", "firmware_version")
         self.__hardware_generation = self.__camera_config.get("prophesee", "hardware_generation")
         self.__integrator_name = self.__camera_config.get("prophesee", "integrator_name")
-        self.__is_stereo_calibration = "stereo_calibration" in self.__settings_file_name
-        self.__intrinsics_file_name = self.__camera_config.get("prophesee", "intrinsics_file_name")
 
         # Generate full path for the camera settings file
-        self.__settings_file_path = Path(__file__).parents[1] / "assets" / self.__settings_file_name
-
-        # Generate full path for the intrinsics file
-        self.__intrinsics_file_path = Path(__file__).parents[1] / "assets" / self.__intrinsics_file_name
+        self.__settings_file_path = Path(__file__).parents[2] / "parameter" / self.__settings_file_name
 
         # Initialize the camera
         self.__prophesee_camera: Camera | None = None
@@ -724,16 +719,7 @@ class PropheseeCamera:
             if self.capture_synced_frame:
                 # Handle visualization - use the last known continuous timestamp to avoid backward jumps
                 self.on_demand_frame_generation.generate(t_last_timestamp, self.image_frame)
-
-                # Push the generated image frame to the shared memory for the GUI to display
-                if self.event_undistort_handler is not None:
-                    # TODO: THIS IS NOT A GOOD / FINAL IMPLEMENTATION OF UNDISTORTION. It is applied on the overall accumulated
-                    # frame, but not the events itself. The best solution would be to apply undistortion directly on the events
-                    # before they are accumulated into frames.
-                    t_undistorted_frame = self.event_undistort_handler.apply(self.image_frame)
-                    self.shared_memory.put(t_undistorted_frame)
-                else:
-                    self.shared_memory.put(self.image_frame)
+                self.shared_memory.put(self.image_frame)
 
                 # Reset the flag to capture the next frame on demand
                 self.capture_synced_frame = False

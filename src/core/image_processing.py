@@ -508,7 +508,7 @@ class Cv2ToBase64Converter:
 
         # Load the configuration file for the flet parameters
         self.__flet_config = configparser.ConfigParser()
-        self.__flet_config.read(Path(__file__).parents[1] / "parameter" / "flet.ini")
+        self.__flet_config.read(Path(__file__).parents[2] / "parameter" / "flet.ini")
 
         # Parse the camera parameters from the configuration file
         self.__image_quality = self.__flet_config.getint("flet", "image_quality")

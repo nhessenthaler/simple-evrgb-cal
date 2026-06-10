@@ -62,11 +62,11 @@ class UeyeCamera:
 
         # Load the configuration file for the camera parameters
         self.__camera_config = configparser.ConfigParser()
-        self.__camera_config.read(Path(__file__).parents[1] / "parameter" / "camera.ini")
+        self.__camera_config.read(Path(__file__).parents[2] / "parameter" / "camera.ini")
 
         # Load additional configuration file if specified (overwrites existing settings)
         if configuration_file_name != "camera.ini":
-            self.__camera_config.read(Path(__file__).parents[1] / "parameter" / configuration_file_name)
+            self.__camera_config.read(Path(__file__).parents[2] / "parameter" / configuration_file_name)
 
         # Parse the camera parameters from the configuration file
         self.__continuous_capture = self.__camera_config.getboolean("ueye", "continuous_capture")

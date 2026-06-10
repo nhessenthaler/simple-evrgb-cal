@@ -80,14 +80,14 @@ class StereoCalibration:
 
         # Load configurations from file system
         self.__stereo_calibration_config = configparser.ConfigParser()
-        self.__stereo_calibration_config.read(Path(__file__).parents[1] / "parameter" / "stereo_calibration.ini")
+        self.__stereo_calibration_config.read(Path(__file__).parents[2] / "parameter" / "stereo_calibration.ini")
         self.__gui_config = configparser.ConfigParser()
-        self.__gui_config.read(Path(__file__).parents[1] / "parameter" / "gui.ini")
+        self.__gui_config.read(Path(__file__).parents[2] / "parameter" / "gui.ini")
         self.__camera_config = configparser.ConfigParser()
         self.__camera_config.read(
             [
-                Path(__file__).parents[1] / "parameter" / "camera.ini",
-                Path(__file__).parents[1] / "parameter" / "camera_stereo_calibration.ini",
+                Path(__file__).parents[2] / "parameter" / "camera.ini",
+                Path(__file__).parents[2] / "parameter" / "camera_stereo_calibration.ini",
             ]
         )
 
@@ -103,8 +103,8 @@ class StereoCalibration:
         # (adds new parameters to the config if not already present)
         self.__camera_config.read(
             [
-                Path(__file__).parents[1] / "parameter" / self.__prophesee_intrinsic_calibration_file_name,
-                Path(__file__).parents[1] / "parameter" / self.__ueye_intrinsic_calibration_file_name,
+                Path(__file__).parents[2] / "parameter" / self.__prophesee_intrinsic_calibration_file_name,
+                Path(__file__).parents[2] / "parameter" / self.__ueye_intrinsic_calibration_file_name,
             ]
         )
 
@@ -168,9 +168,9 @@ class StereoCalibration:
         self.__target_bitmap_file_name = self.__stereo_calibration_config.get("target", "target_bitmap_file_name")
         self.__target_video_file_name = self.__stereo_calibration_config.get("target", "target_video_file_name")
         self.__header_output_path = str(
-            Path(__file__).parents[1] / "assets" / "flicker_calib_board" / self.__target_bitmap_file_name
+            Path(__file__).parents[2] / "data" / "flicker_calib_board" / self.__target_bitmap_file_name
         )
-        self.__video_output_path = str(Path(__file__).parents[1] / "assets" / self.__target_video_file_name)
+        self.__video_output_path = str(Path(__file__).parents[2] / "data" / self.__target_video_file_name)
         self.__min_corners_for_calibration = self.__stereo_calibration_config.getint(
             "calibration", "min_corners_for_calibration"
         )
@@ -1671,7 +1671,7 @@ class StereoCalibration:
         """
 
         # ##### Save Results #####
-        t_assets_path = Path(__file__).parents[1] / "assets"
+        t_output_path = Path(__file__).parents[2] / "data"
 
         # Collect calibration results
         t_k_rgb: np.ndarray | None = None
@@ -1705,7 +1705,7 @@ class StereoCalibration:
                 print_info(f"Reprojection error (RGB): {t_error_rgb}")
 
                 save_intrinsics_to_json(
-                    str(t_assets_path / self.__rgb_intrinsics_file_path),
+                    str(t_output_path / self.__rgb_intrinsics_file_path),
                     t_k_rgb,
                     t_dist_rgb,
                     tuple(t_rgb_shape[::-1]),
@@ -1729,7 +1729,7 @@ class StereoCalibration:
                 print_info(f"Reprojection error (Event): {t_error_event}")
 
                 save_intrinsics_to_json(
-                    str(t_assets_path / self.__event_intrinsics_file_path),
+                    str(t_output_path / self.__event_intrinsics_file_path),
                     t_k_event,
                     t_dist_event,
                     tuple(t_event_shape[::-1]),
@@ -1778,7 +1778,7 @@ class StereoCalibration:
                 print_info(f"Reprojection error (Stereo): {t_error_stereo}")
 
                 # Save extrinsic results
-                save_extrinsics_to_json(str(t_assets_path / self.__extrinsics_file_path), t_R, t_T, t_error_stereo)
+                save_extrinsics_to_json(str(t_output_path / self.__extrinsics_file_path), t_R, t_T, t_error_stereo)
 
         except Exception as e:
             print_error(f"Error during calibration: {e}")

@@ -2326,7 +2326,7 @@ class UR5eCalibrator:
         """
 
         # Open the URScript template file
-        t_ur_script_template = open_ur_script_file(Path(__file__).parents[1] / "assets" / "calibration_ur5e.urs")
+        t_ur_script_template = open_ur_script_file(Path(__file__).parent / "ur_scripts" / "calibration_ur5e.urs")
 
         # Format the URScript template with the calculated parameters
         self.ur_script = t_ur_script_template.format(**self.parameter_dict)
