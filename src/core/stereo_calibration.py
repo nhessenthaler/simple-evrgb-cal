@@ -2157,6 +2157,7 @@ class StereoCalibration:
                         else:
                             print_info("No robot connected. Running manual calibration.")
                             self.calibration_phase = CalibrationPhase.NO_ROBOT
+                            self.capture_timer_instance.reset()
 
                 # Choose capture mode based on whether a robot is driving the process
                 t_robot_active = self.calibration_phase not in (
