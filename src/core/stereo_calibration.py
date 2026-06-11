@@ -1464,6 +1464,136 @@ class StereoCalibration:
 
         return frame
 
+    def _is_collinear(self, object_points: np.ndarray) -> bool:
+        """
+        Method to check whether a set of object points is collinear (all lie on a straight line along x or y).
+
+        Args:
+            object_points (np.ndarray): The object points to check, shaped (N, 2) or (N, 3).
+
+        Returns:
+            collinear (bool): True if all points share the same x-coordinate or the same y-coordinate.
+        """
+
+        t_is_line_x = np.allclose(object_points[:, 0], object_points[0, 0])
+        t_is_line_y = np.allclose(object_points[:, 1], object_points[0, 1])
+
+        return t_is_line_x or t_is_line_y
+
+    def _collect_rgb_intrinsic_sample(self, corners: np.ndarray | None, ids: np.ndarray | None) -> tuple[bool, bool]:
+        """
+        Method to collect a valid RGB camera frame for intrinsic calibration if corners are not collinear.
+
+        Args:
+            corners (np.ndarray | None): The detected corners in the RGB frame.
+            ids (np.ndarray | None): The identifiers of the detected corners.
+
+        Returns:
+            detected (bool): True if >= 4 corners were found (sufficient for a calibration attempt).
+            usable (bool): True if the pattern was not collinear and the sample was added.
+        """
+
+        if corners is None or len(corners) < 4:
+            return False, False
+
+        t_object_points = self.charuco_board_handler.get_object_points(ids)
+
+        if not self._is_collinear(t_object_points):
+            self.rgb_image_points.append(corners)
+            self.object_points_rgb.append(t_object_points)
+            print_info(f"Captured valid RGB image for intrinsic calibration. Sample: {len(self.rgb_image_points)}")
+
+            if self.__estimate_orientation and self.__rgb_camera_matrix is not None:
+                self.charuco_board_handler.estimate_pose(
+                    corners, ids, self.__rgb_camera_matrix, self.__rgb_dist_coeffs
+                )
+            return True, True
+        else:
+            print_info("Skipping RGB sample: Points are collinear (straight line).")
+            return True, False
+
+    def _collect_event_intrinsic_sample(self, corners: np.ndarray | None, ids: np.ndarray | None) -> tuple[bool, bool]:
+        """
+        Method to collect a valid event camera frame for intrinsic calibration if corners are not collinear.
+
+        Args:
+            corners (np.ndarray | None): The detected corners in the event frame.
+            ids (np.ndarray | None): The identifiers of the detected corners.
+
+        Returns:
+            detected (bool): True if >= 4 corners were found (sufficient for a calibration attempt).
+            usable (bool): True if the pattern was not collinear and the sample was added.
+        """
+
+        if corners is None or len(corners) < 4:
+            return False, False
+
+        t_object_points = self.charuco_board_handler.get_object_points(ids)
+
+        if not self._is_collinear(t_object_points):
+            self.event_image_points.append(corners)
+            self.object_points_event.append(t_object_points)
+            print_info(f"Captured valid event image for intrinsic calibration. Sample: {len(self.event_image_points)}")
+            return True, True
+        else:
+            print_info("Skipping event sample: Points are collinear (straight line).")
+            return True, False
+
+    def _collect_stereo_sample(
+        self,
+        corners_rgb: np.ndarray | None,
+        ids_rgb: np.ndarray | None,
+        corners_event: np.ndarray | None,
+        ids_event: np.ndarray | None,
+    ) -> tuple[bool, bool]:
+        """
+        Method to collect synchronized samples for stereo calibration by matching detected corners from both sensors.
+        It ensures that the same physical points are matched by using the corner IDs, and checks for collinearity.
+
+        Args:
+            corners_rgb (np.ndarray | None): The detected corners in the RGB frame.
+            ids_rgb (np.ndarray | None): The identifiers of the detected corners in the RGB frame.
+            corners_event (np.ndarray | None): The detected corners in the event frame.
+            ids_event (np.ndarray | None): The identifiers of the detected corners in the event frame
+
+        Returns:
+            detected (bool): True if both cameras had >= 4 common corner IDs.
+            usable (bool): True if the common pattern was not collinear and the pair was added.
+        """
+
+        if corners_rgb is None or corners_event is None:
+            return False, False
+
+        # Find common IDs to ensure we are matching the same physical points
+        t_ids_rgb_flat = ids_rgb.flatten()
+        t_ids_event_flat = ids_event.flatten()
+        t_common_ids = np.intersect1d(t_ids_rgb_flat, t_ids_event_flat)
+
+        if len(t_common_ids) < 4:
+            return False, False
+
+        # Ensure correct ordering: get indices of common IDs in each detected IDs array
+        t_rgb_indices = [np.where(t_ids_rgb_flat == i)[0][0] for i in t_common_ids]
+        t_event_indices = [np.where(t_ids_event_flat == i)[0][0] for i in t_common_ids]
+        t_common_corners_rgb = corners_rgb[t_rgb_indices]
+        t_common_corners_event = corners_event[t_event_indices]
+
+        # t_common_ids to get object points for BOTH sensors in stereo calibration
+        t_common_object_points = self.charuco_board_handler.get_object_points(t_common_ids)
+
+        # Check for collinearity (straight lines) in object points
+        if not self._is_collinear(t_common_object_points):
+            self.rgb_image_points_synced.append(t_common_corners_rgb)
+            self.event_image_points_synced.append(t_common_corners_event)
+            self.object_points_synced.append(t_common_object_points)
+            print_info(
+                f"Captured valid synchronized image pair for extrinsic calibration. Common points: {len(t_common_ids)}. Sample: {len(self.rgb_image_points_synced)}"
+            )
+            return True, True
+        else:
+            print_info("Skipping synchronized pair: Points are collinear (straight line).")
+            return True, False
+
     def _start_robot_phase(self, camera_name: str) -> None:
         """
         Method to start the robot-assisted calibration phase by initializing the UR5eCalibrator and running it in a separate thread.
@@ -1598,6 +1728,9 @@ class StereoCalibration:
         # Collect calibration data based on the current phase
         # All phases at once if no robot
         if self.calibration_phase == CalibrationPhase.NO_ROBOT:
+            self._collect_rgb_intrinsic_sample(t_corners_rgb, t_ids_rgb)
+            self._collect_event_intrinsic_sample(t_corners_event, t_ids_event)
+            self._collect_stereo_sample(t_corners_rgb, t_ids_rgb, t_corners_event, t_ids_event)
             t_rgb_ann = self.latest_rgb_frame.copy()
             if t_corners_rgb is not None:
                 t_rgb_ann = self.charuco_board_handler.draw_corners(t_rgb_ann, t_corners_rgb, t_ids_rgb)
@@ -1615,6 +1748,7 @@ class StereoCalibration:
 
         # 1st phase: RGB intrinsic only
         elif self.calibration_phase == CalibrationPhase.RGB_INTRINSIC:
+            self._collect_rgb_intrinsic_sample(t_corners_rgb, t_ids_rgb)
             t_rgb_ann = self.latest_rgb_frame.copy()
             if t_corners_rgb is not None:
                 t_rgb_ann = self.charuco_board_handler.draw_corners(t_rgb_ann, t_corners_rgb, t_ids_rgb)
@@ -1625,6 +1759,7 @@ class StereoCalibration:
 
         # 2nd phase: Event intrinsic only
         elif self.calibration_phase == CalibrationPhase.EVENT_INTRINSIC:
+            self._collect_event_intrinsic_sample(t_corners_event, t_ids_event)
             t_evt_ann = self.latest_event_frame.copy()
             if t_corners_event is not None:
                 t_evt_ann = self.charuco_board_handler.draw_corners(t_evt_ann, t_corners_event, t_ids_event)
@@ -1635,6 +1770,7 @@ class StereoCalibration:
 
         # 3rd phase: Stereo extrinsic only
         elif self.calibration_phase == CalibrationPhase.STEREO_EXTRINSIC:
+            self._collect_stereo_sample(t_corners_rgb, t_ids_rgb, t_corners_event, t_ids_event)
             t_rgb_ann = self.latest_rgb_frame.copy()
             if t_corners_rgb is not None:
                 t_rgb_ann = self.charuco_board_handler.draw_corners(t_rgb_ann, t_corners_rgb, t_ids_rgb)
