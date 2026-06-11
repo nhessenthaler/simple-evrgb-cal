@@ -811,7 +811,7 @@ class StereoCalibrationGUI:
                 ft.Container(
                     content=ft.Row(
                         [
-                            BlueCustomMediumText("Square Size:", size=18),
+                            BlueCustomMediumText("Square size:", size=18),
                             self.decrease_size_button,
                             self.target_size_text,
                             self.increase_size_button,
