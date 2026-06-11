@@ -952,9 +952,11 @@ class StereoCalibrationGUI:
         self.increase_size_button.bgcolor = "#004f9e"
         self.generate_target_button.disabled = False
         self.generate_target_button.bgcolor = "#004f9e"
+        self.target_size_text.color = "#004f9e"
         self.decrease_size_button.update()
         self.increase_size_button.update()
         self.generate_target_button.update()
+        self.target_size_text.update()
         self.stereo_calibration_button_container.update()
         self.current_calibration_phase.value = -1
         self.phase_label.value = "Status: Calibration Inactive"
@@ -1019,9 +1021,11 @@ class StereoCalibrationGUI:
             self.increase_size_button.bgcolor = "#a9a9a9"
             self.generate_target_button.disabled = True
             self.generate_target_button.bgcolor = "#a9a9a9"
+            self.target_size_text.color = "#a9a9a9"
             self.decrease_size_button.update()
             self.increase_size_button.update()
             self.generate_target_button.update()
+            self.target_size_text.update()
             self.stereo_calibration_button_container.update()
         else:
             self.stereo_calibration_active.clear()
