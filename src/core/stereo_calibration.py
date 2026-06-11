@@ -251,6 +251,10 @@ class StereoCalibration:
         # Timestamp recorded when position reached fires (for non-blocking settle delay)
         self.__position_reached_time: float | None = None
 
+        # Asynchronous robot ping state (to avoid blocking the main loop / freezing the GUI)
+        self.__robot_ping_complete = False
+        self.__robot_reachable = False
+
     # ##### GETTER #####
     @property
     def event_raw_shm(self) -> RawSharedMemory:
@@ -784,6 +788,34 @@ class StereoCalibration:
 
         return self.__position_reached_time
 
+    @property
+    def robot_ping_complete(self) -> bool:
+        """
+        Getter for the attribute '__robot_ping_complete'.
+
+        Args:
+            ():
+
+        Returns:
+            robot_ping_complete (bool): The attribute '__robot_ping_complete'.
+        """
+
+        return self.__robot_ping_complete
+
+    @property
+    def robot_reachable(self) -> bool:
+        """
+        Getter for the attribute '__robot_reachable'.
+
+        Args:
+            ():
+
+        Returns:
+            robot_reachable (bool): The attribute '__robot_reachable'.
+        """
+
+        return self.__robot_reachable
+
     # ##### SETTER #####
     @capture_timer_instance.setter
     def capture_timer_instance(self, value: Timer) -> None:
@@ -1235,6 +1267,38 @@ class StereoCalibration:
 
         return
 
+    @robot_ping_complete.setter
+    def robot_ping_complete(self, value: bool) -> None:
+        """
+        Setter for the attribute '__robot_ping_complete'.
+
+        Args:
+            value (bool): The new value for the attribute '__robot_ping_complete'.
+
+        Returns:
+            ():
+        """
+
+        self.__robot_ping_complete = value
+
+        return
+
+    @robot_reachable.setter
+    def robot_reachable(self, value: bool) -> None:
+        """
+        Setter for the attribute '__robot_reachable'.
+
+        Args:
+            value (bool): The new value for the attribute '__robot_reachable'.
+
+        Returns:
+            ():
+        """
+
+        self.__robot_reachable = value
+
+        return
+
     # ##### PRIVATE METHODS #####
     def _check_calibration_reset(self) -> None:
         """
@@ -1289,14 +1353,56 @@ class StereoCalibration:
 
             # Stop the robot execution if it is still running (safety measure, should be daemon and finish on its own)
             # Only attempt robot communication if the robot is reachable (e.g. not connected during testing)
-            if ping_robot(self.__robot_ip):
-                send_stop_command(self.__robot_ip, self.__secondary_port)
-                reset_digital_outputs(self.__robot_ip, self.__primary_port)
+            # Run ping + stop in a background thread to avoid blocking the main loop / freezing the GUI
+            self.robot_reachable = False
+            self.robot_ping_complete = False
+            threading.Thread(
+                target=self._stop_robot_if_reachable,
+                daemon=True,
+            ).start()
 
             # Kill the robot thread if it's still running (safety measure, should be daemon and finish on its own)
             if self.robot_thread is not None and self.robot_thread.is_alive():
                 self.robot_thread.join(timeout=0.1)
                 self.robot_thread = None
+
+        return
+
+    def _stop_robot_if_reachable(self) -> None:
+        """
+        Background thread helper to ping the robot and send stop/reset commands if reachable.
+        Runs asynchronously to avoid blocking the main loop.
+
+        Args:
+            ():
+
+        Returns:
+            ():
+        """
+
+        if ping_robot(self.__robot_ip):
+            self.robot_reachable = True
+            send_stop_command(self.__robot_ip, self.__secondary_port)
+            reset_digital_outputs(self.__robot_ip, self.__primary_port)
+
+        self.robot_ping_complete = True
+
+        return
+
+    def _ping_robot_async(self, robot_ip: str) -> None:
+        """
+        Background thread helper to ping the robot and set the reachability flag.
+        Runs asynchronously to avoid blocking the main loop / freezing the GUI.
+
+        Args:
+            robot_ip (str): IP address of the robot to ping.
+
+        Returns:
+            ():
+        """
+
+        self.robot_reachable = ping_robot(robot_ip)
+        self.robot_ping_complete = True
 
         return
 
@@ -2029,18 +2135,35 @@ class StereoCalibration:
                     self.calibration_was_active = True
                     self.capture_timer_instance.reset()
 
-                    # Initialize calibration phase by checking robot connectivity
+                    # Initialize calibration phase by checking robot connectivity asynchronously
+                    # to avoid blocking the main loop / freezing the GUI
                     t_robot_ip = self.__stereo_calibration_config.get("ur5e", "robot_ip")
-                    if ping_robot(t_robot_ip):
-                        print_info("Robot connected. Starting Phase 1: RGB intrinsic calibration")
-                        self.calibration_phase = CalibrationPhase.RGB_INTRINSIC
-                        self._start_robot_phase("ueye")
-                    else:
-                        print_info("No robot connected. Running manual calibration.")
-                        self.calibration_phase = CalibrationPhase.NO_ROBOT
+                    self.calibration_phase = CalibrationPhase.CHECKING_ROBOT
+                    self.robot_ping_complete = False
+                    self.robot_reachable = False
+                    threading.Thread(
+                        target=self._ping_robot_async,
+                        args=(t_robot_ip,),
+                        daemon=True,
+                    ).start()
+
+                # If still checking robot connectivity, wait for the ping to complete
+                if self.calibration_phase == CalibrationPhase.CHECKING_ROBOT:
+                    if self.robot_ping_complete:
+                        if self.robot_reachable:
+                            print_info("Robot connected. Starting Phase 1: RGB intrinsic calibration")
+                            self.calibration_phase = CalibrationPhase.RGB_INTRINSIC
+                            self._start_robot_phase("ueye")
+                        else:
+                            print_info("No robot connected. Running manual calibration.")
+                            self.calibration_phase = CalibrationPhase.NO_ROBOT
 
                 # Choose capture mode based on whether a robot is driving the process
-                t_robot_active = self.calibration_phase not in (None, CalibrationPhase.NO_ROBOT)
+                t_robot_active = self.calibration_phase not in (
+                    None,
+                    CalibrationPhase.NO_ROBOT,
+                    CalibrationPhase.CHECKING_ROBOT,
+                )
 
                 if t_robot_active:
                     # Robot-driven capture: triggered by the position-reached signal (DO2)

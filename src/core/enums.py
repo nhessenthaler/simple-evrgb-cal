@@ -32,6 +32,7 @@ class CameraState(IntEnum):
 class CalibrationPhase(IntEnum):
     """Enumeration for robot-assisted stereo calibration phases."""
 
+    CHECKING_ROBOT = -1
     NO_ROBOT = 0
     RGB_INTRINSIC = 1
     EVENT_INTRINSIC = 2
@@ -41,6 +42,7 @@ class CalibrationPhase(IntEnum):
     def label(self) -> str:
         """Human-readable display label for the calibration phase."""
         _labels = {
+            CalibrationPhase.CHECKING_ROBOT: "Pinging UR5e Robot",
             CalibrationPhase.NO_ROBOT: "Handheld Calibration",
             CalibrationPhase.RGB_INTRINSIC: "Phase 1 - RGB Intrinsic",
             CalibrationPhase.EVENT_INTRINSIC: "Phase 2 - Event Intrinsic",
