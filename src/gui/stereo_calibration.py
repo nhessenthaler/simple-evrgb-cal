@@ -1062,8 +1062,10 @@ class StereoCalibrationGUI:
             if t_is_calibration_active:
                 t_phase_value = self.current_calibration_phase.value
                 try:
-                    t_new_label = f"Status: {CalibrationPhase(t_phase_value).label}"
+                    t_current_phase = CalibrationPhase(t_phase_value)
+                    t_new_label = f"Status: {t_current_phase.label}"
                 except ValueError:
+                    t_current_phase = None
                     t_new_label = "Status: Calibration Inactive"
                 if self.phase_label.value != t_new_label:
                     self.phase_label.value = t_new_label
@@ -1072,10 +1074,6 @@ class StereoCalibrationGUI:
                 # Get the timer for the next image capture in manual calibration mode
                 t_remaining = self.next_capture_timer.value
 
-                # Update countdown timer widget
-                # The timer is automatic if calibration is active
-                self.countdown_timer.automatic = True
-
                 # Check for camera errors
                 t_error_state = (
                     self.camera_states[CameraType.EVENT] == CameraState.ERROR
@@ -1083,12 +1081,18 @@ class StereoCalibrationGUI:
                 )
                 self.countdown_timer.error = t_error_state
 
-                # Update visual timer value
-                self.countdown_timer.update_timer(t_remaining, self.countdown_timer.countdown_max)
+                # Only show and run the timer in handheld (no robot) mode
+                # During pinging or robot-assisted phases, hide the timer entirely
+                t_handheld_mode = t_current_phase == CalibrationPhase.NO_ROBOT
 
-                # Specific visibility logic: only if active, no errors, and not in robot mode
-                # (t_remaining == -1 signals robot-driven mode where no countdown is needed)
-                t_show_timer = not t_error_state and t_remaining >= 0
+                if t_handheld_mode:
+                    self.countdown_timer.automatic = True
+                    self.countdown_timer.update_timer(t_remaining, self.countdown_timer.countdown_max)
+                    t_show_timer = not t_error_state and t_remaining >= 0
+                else:
+                    self.countdown_timer.automatic = False
+                    t_show_timer = False
+
                 self.countdown_timer.visible = t_show_timer
                 self.countdown_timer_placeholder.visible = not t_show_timer
                 self.countdown_timer.update()
