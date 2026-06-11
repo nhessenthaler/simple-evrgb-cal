@@ -1062,7 +1062,7 @@ class StereoCalibrationGUI:
             if t_is_calibration_active:
                 t_phase_value = self.current_calibration_phase.value
                 try:
-                    t_new_label = CalibrationPhase(t_phase_value).label
+                    t_new_label = f"Status: {CalibrationPhase(t_phase_value).label}"
                 except ValueError:
                     t_new_label = "Status: Calibration Inactive"
                 if self.phase_label.value != t_new_label:
