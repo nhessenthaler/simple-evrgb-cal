@@ -2189,7 +2189,7 @@ class StereoCalibration:
                             self._synchronized_calibration_processing()
                         self.position_reached_time = None
 
-                else:
+                elif self.calibration_phase == CalibrationPhase.NO_ROBOT:
                     # Manual (no robot) capture: timer-driven
                     self.next_capture_timer.value = self.capture_timer_instance.get_remaining_time()
 
@@ -2199,6 +2199,10 @@ class StereoCalibration:
                         # Process latest frames and get detection results
                         if self.latest_rgb_frame is not None and self.latest_event_frame is not None:
                             self._synchronized_calibration_processing()
+
+                else:
+                    # CHECKING_ROBOT or unknown phase: hide timer, do nothing
+                    self.next_capture_timer.value = -1
 
             # Wait for a short time to avoid busy waiting and allow other processes to run
             time.sleep(0.01)
