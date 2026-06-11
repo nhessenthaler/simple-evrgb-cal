@@ -1502,11 +1502,6 @@ class StereoCalibration:
             self.rgb_image_points.append(corners)
             self.object_points_rgb.append(t_object_points)
             print_info(f"Captured valid RGB image for intrinsic calibration. Sample: {len(self.rgb_image_points)}")
-
-            if self.__estimate_orientation and self.__rgb_camera_matrix is not None:
-                self.charuco_board_handler.estimate_pose(
-                    corners, ids, self.__rgb_camera_matrix, self.__rgb_dist_coeffs
-                )
             return True, True
         else:
             print_info("Skipping RGB sample: Points are collinear (straight line).")
