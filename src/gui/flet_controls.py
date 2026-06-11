@@ -17,7 +17,7 @@ import flet as ft
 
 @ft.control
 class BlueCustomButton(ft.Button):
-    """Custom button class for a standard blue button using AI Traqc colors scheme."""
+    """Custom button class for a standard blue button."""
 
     color: ft.Colors = ft.Colors.WHITE
     bgcolor: ft.Colors = "#004f9e"
@@ -38,7 +38,7 @@ class BlueCustomButton(ft.Button):
 
 @ft.control
 class RedCustomButton(ft.Button):
-    """Custom button class for a standard red button using AI Traqc colors scheme."""
+    """Custom button class for a standard red button."""
 
     color: ft.Colors = ft.Colors.WHITE
     bgcolor: ft.Colors = "#e30613"
@@ -59,7 +59,7 @@ class RedCustomButton(ft.Button):
 
 @ft.control
 class BlueCustomIconButton(ft.IconButton):
-    """Custom button class for a standard blue button using AI Traqc colors scheme."""
+    """Custom button class for a standard blue button."""
 
     color: ft.Colors = ft.Colors.WHITE
     icon_color = ft.Colors.WHITE
@@ -81,7 +81,7 @@ class BlueCustomIconButton(ft.IconButton):
 
 @ft.control
 class BlueCustomMediumText(ft.Text):
-    """Custom text class for a standard, medium size blue text using AI Traqc colors scheme."""
+    """Custom text class for a standard, medium size blue text."""
 
     color: ft.Colors = "#004f9e"
     weight: ft.FontWeight = ft.FontWeight.BOLD
@@ -91,7 +91,7 @@ class BlueCustomMediumText(ft.Text):
 
 @ft.control
 class BlueCustomImageContainer(ft.Container):
-    """Custom container class for displaying images with a fixed size and a placeholder in case of errors, using AI Traqc colors scheme."""
+    """Custom container class for displaying images with a fixed size and a placeholder in case of errors."""
 
     bgcolor: ft.Colors = ft.Colors.WHITE
     border_radius: int = 4

@@ -790,7 +790,7 @@ class StereoCalibrationGUI:
         self.page.window_width = self.width
         self.page.window_height = self.height
         self.page.window_resizable = False
-        self.page.window.icon = str(Path(__file__).parent / "assets" / "AI-TRAQC-Logo-1.ico")
+        self.page.window.icon = str(Path(__file__).parent / "assets" / "icon.ico")
         self.page.title = "Cross-modal Stereo-Calibration of Event-based and RGB Cameras"
 
         t_settings_row = ft.Row(
