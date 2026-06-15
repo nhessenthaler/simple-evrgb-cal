@@ -11,6 +11,12 @@ License: Apache License Version 2.0
 Contact: nico.hessenthaler@hs-heilbronn.de
 """
 
+import sys
+import platform
+
+if platform.system() == "Linux":
+    sys.path.append("/usr/lib/python3/dist-packages/")
+
 import flet as ft
 from src.gui import gui_build_and_run
 

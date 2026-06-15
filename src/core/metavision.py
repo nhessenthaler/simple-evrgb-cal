@@ -20,19 +20,15 @@ from pathlib import Path
 
 # Prevent type checking errors
 if TYPE_CHECKING:
-    from metavision_core.event_io import EventsIterator
-    from metavision_hal import DeviceDiscovery, Device
+    from metavision_hal import DeviceDiscovery
     from metavision_sdk_core import OnDemandFrameGenerationAlgorithm
     from metavision_sdk_stream import Camera, CameraStreamSlicer, HDF5EventFileWriter
-    from metavision_sdk_ui import MTWindow, BaseWindow, UIKeyEvent
 
 # Try importing Metavision SDK modules and handle ImportError gracefully
 try:
-    from metavision_core.event_io import EventsIterator
-    from metavision_hal import DeviceDiscovery, Device
+    from metavision_hal import DeviceDiscovery
     from metavision_sdk_core import OnDemandFrameGenerationAlgorithm
     from metavision_sdk_stream import Camera, CameraStreamSlicer, HDF5EventFileWriter
-    from metavision_sdk_ui import MTWindow, BaseWindow, UIKeyEvent
 except ImportError:
     print_error(
         "Metavision SDK is not installed or could not be imported. Please ensure that the Metavision SDK is properly installed and configured."

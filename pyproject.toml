@@ -1,0 +1,14 @@
+[project]
+name = "simple-evrgb-cal"
+version = "0.0.1"
+dependencies = [
+    "flet[all]>=0.85.0",
+    "numpy",
+    "opencv-python",
+    "PyTurboJPEG>=2.2.0",
+    "pyserial",
+    "pyueye",
+    "ur-rtde", 
+]
+requires-python = "==3.12.12"
+ 
