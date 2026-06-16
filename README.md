@@ -34,7 +34,7 @@ _Published at [BMVC 2026]_
 ---
 
 > [!CAUTION]
-> **Note:** This tool has been tested on **Windows 11** and **Linux (Ubuntu 24.04)** with **Python 3.12**.
+> **Note:** This tool has been tested on **Windows 11** and **Linux (Ubuntu 24.04)** with **Python 3.12** with a display resolution for the GUI of **1920x1080** pixel.
 > We recommend using **Linux** for the calibration workflow, as the OpenEB installation on Windows requires compiling the SDK from source, which significantly increases setup time.
 
 ## 1. Prerequisites
@@ -325,7 +325,7 @@ If no robot is detected, the tool switches to handheld mode. In this mode:
 
 1. **Launch the tool** with `python main.py` and wait for both cameras to initialize (the "Start Calibration" button will turn blue).
 2. **Adjust the square size** using the `+`/`-` buttons if your calibration target differs from the default.
-3. **(Optional)** Click "Generate Target" to create a hybrid ChArUco target video and Arduino bitmap for your display.
+3. **(Optional)** Click "Generate Target" to create a hybrid ChArUco target video and Arduino bitmap for your display. Will be output in the `data` folder.
 4. **Click "Start Calibration"** to begin. The status bar will indicate whether robot-assisted or handheld mode is active.
 5. **Collect sufficient poses** by moving the calibration target (handheld) or letting the robot cycle through positions (robot-assisted).
 6. **Click "Stop Calibration"** (or wait for the robot to complete all phases) to finalize. Results will be saved to the `data/` directory.
