@@ -10,7 +10,8 @@ _Published at [BMVC 2026]_
 [![Paper]()](Link_to_Paper)
 
 </div>
-> [!CAUTION]  
+
+> [!CAUTION]
 > **Note:** This tool has been tested on **Windows 11** and **Linux (Ubuntu 24.04)** with **Python 3.12**.
 > We recommend using **Linux** for the calibration workflow, as the OpenEB installation on Windows requires compiling the SDK from source, which significantly increases setup time.
 
