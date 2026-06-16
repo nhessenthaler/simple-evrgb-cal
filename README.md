@@ -84,6 +84,10 @@ sudo apt install ./ueye-api*.deb ./ueye-common*.deb ./ueye-demos*.deb ./ueye-dev
 7. Try to open your connected camera via camera manager. If it is not working instantly, use the manager to configure the IP adress or to upload a matching starter firmware.
 
 ##### Windows
+1. Visit the IDS download center https://de.ids-imaging.com/downloads.html and select the version of your uEye camera.
+2. Download the latest IDS Software Suite for Windows 11.
+3. Unpack the downloaded .zip file.
+4. Run the installer .exe file that will guide you through the installation process.
 <br>
 <br>
 
@@ -107,7 +111,8 @@ sudo apt update
 sudo apt -y install metavision-openeb
 ```
 ##### Windows
-
+Follow the installation guideline for OpenEB on Windows provided in the Prophesee docs, since the process is too umfangreich to be documented here (compilation from scratch, no pre-compiled packages available.).
+https://docs.prophesee.ai/stable/installation/windows_openeb.html#upgrading-openeb
 ---
 
 ### 2. Clone the repository
@@ -128,13 +133,27 @@ cd simple-evrgb-cal
 ---
 
 ### 3. Setup of virtual environment
-It is recommended to run the cross-modal stereo calibration tool in a virtual uv environment. Thus, create a virtual environment with the following command:
+It is recommended to run the cross-modal stereo calibration tool in a virtual uv environment. Thus, create a virtual environment in the project directory with the following command (terminal in Linux, PowerShell in Windows):
 ```
 uv venv --python 3.12.12
 ```
+##### Linux
 Then, activate the virtual environment:
 ```
 source .venv/bin/activate
+```
+Synchronize the packages specified in the pyproject.toml in the virtual environment:
+```
+uv sync
+```
+##### Windows
+On Windows, first allow the activation of a uv environment:
+```
+Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
+```
+Then, activate the virtual environment:
+```
+.venv\Scripts\activate
 ```
 Synchronize the packages specified in the pyproject.toml in the virtual environment:
 ```
