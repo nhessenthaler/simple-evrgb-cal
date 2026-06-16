@@ -392,6 +392,38 @@ If you use this work in a research paper, please cite our publication:
 
 This project is licensed under the terms of the [LICENSE](LICENSE) file.
 
+This application incorporates open-source third-party software. 
+The licenses and notices for these dependencies are detailed below:
+
+1. flet
+   License: Apache License 2.0
+   Copyright (c) AppVeyor Systems Inc.
+
+2. opencv-python
+   License: Apache License 2.0
+   Copyright (c) OpenCV Team
+
+3. PyTurboJPEG
+   License: MIT License
+   Copyright (c) Lilo Huang
+
+4. pyserial
+   License: BSD License
+   Copyright (c) Chris Liechti
+
+5. pyueye
+   License: 3-Clause BSD License
+   Copyright (c) IDS Imaging Development Systems GmbH
+
+6. ur_rtde
+   License: MIT License
+   Copyright (c) 2019-2021 Anders Prier Lindvig
+
+7. openeb
+   License: Apache License 2.0
+   Copyright (c) Prophesee S.A
+
+
 ---
 
 ## Keywords
