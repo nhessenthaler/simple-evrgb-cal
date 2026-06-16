@@ -282,8 +282,7 @@ python main.py
 
 The calibration tool provides a graphical user interface (GUI) built with Flet for performing cross-modal calibration between event-based and RGB cameras. The window opens maximized and displays live feeds from both cameras along with controls for managing the calibration process.
 
-> [!TIP]
-> **Screenshot:** A screenshot of the GUI will be added here.
+![GUI Screenshot](data/images/GUI_image.png)
 
 ### GUI Elements
 
