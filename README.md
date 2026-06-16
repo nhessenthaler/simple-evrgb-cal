@@ -231,8 +231,9 @@ The table below lists all parameters that must be configured before use:
 |-----------|------|---------|-------------|
 | `serial_number` | `camera.ini` | `[prophesee]` | Serial number of the Prophesee event camera. |
 | `turbojpeg_dll_path` | `flet.ini` | `[flet]` | Path to the TurboJPEG library (`turbojpeg.dll` on Windows, `libturbojpeg.so.0` on Linux). |
-| `focal_length` | `intrinsic_calibration_12mm_prophesee.ini` | `[prophesee_lens]` | Focal length of the Prophesee camera lens in meters. |
-| `focal_length` | `intrinsic_calibration_12mm_ueye.ini` | `[ueye_lens]` | Focal length of the uEye camera lens in meters. |
+| `focal_length` | `intrinsic_calibration_*.ini` | `[*_lens]` | Focal length of the camera lens in meters. |
+| `positional_offset_x` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Lateral offset between the Prophesee and uEye camera centers (meters) for robot calibration. |
+| `distance_to_target` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Distance from the camera lens to the calibration target surface (meters). |
 | `target_rows` | `stereo_calibration.ini` | `[target]` | Number of rows in the ChArUco calibration target pattern. |
 | `target_columns` | `stereo_calibration.ini` | `[target]` | Number of columns in the ChArUco calibration target pattern. |
 | `target_square_size` | `stereo_calibration.ini` | `[target]` | Physical size of a single square in the calibration target (meters). |
@@ -248,10 +249,14 @@ Additional parameters can be tuned depending on your experimental setup:
 | `crop_aoi` | `camera.ini` | `[ueye]` | Region of interest for cropping the uEye image to match the event camera's field of view. |
 | `exposure_time`, `gain_value`, `gamma_value` | `camera.ini` | `[ueye]` | Exposure, gain, and gamma settings for the uEye camera. |
 | `wb_red_gain`, `wb_green_gain`, `wb_blue_gain` | `camera.ini` | `[ueye]` | White balance gains for the uEye camera. |
-| `positional_offset_x` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Lateral offset between the Prophesee and uEye camera centers (meters). |
-| `distance_to_target` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Distance from the camera lens to the calibration target surface (meters). |
 | `calibration_rows`, `calibration_columns` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Grid dimensions for robot-guided calibration poses (must be odd). |
 | `max_roll`, `max_pitch`, `max_yaw` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Maximum rotation angles for the robot arm during calibration (degrees). |
+
+> **Note:** The wildcard `*` in the tables above refers to the camera type:
+> - `intrinsic_calibration_12mm_prophesee.ini` → `[prophesee_calibration]` section (for the Prophesee event camera)
+> - `intrinsic_calibration_12mm_ueye.ini` → `[ueye_calibration]` section (for the IDS uEye RGB camera)
+>
+> Both files share the same parameter names but contain independent values tailored to each camera's mounting position and optical properties.
 
 ---
 
