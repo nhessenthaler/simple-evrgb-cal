@@ -252,7 +252,8 @@ Additional parameters can be tuned depending on your experimental setup:
 | `calibration_rows`, `calibration_columns` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Grid dimensions for robot-guided calibration poses (must be odd). |
 | `max_roll`, `max_pitch`, `max_yaw` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Maximum rotation angles for the robot arm during calibration (degrees). |
 
-> **Note:** The wildcard `*` in the tables above refers to the camera type:
+> [!CAUTION]
+> The wildcard `*` in the tables above refers to the camera type:
 > - `intrinsic_calibration_12mm_prophesee.ini` → `[prophesee_calibration]` section (for the Prophesee event camera)
 > - `intrinsic_calibration_12mm_ueye.ini` → `[ueye_calibration]` section (for the IDS uEye RGB camera)
 >
