@@ -1,7 +1,7 @@
 
-# Simplified Cross-Modal Calibration for Heterogeneous Event-RGB Stereo Systems
-
 <div align="center">
+
+# Simplified Cross-Modal Calibration for Heterogeneous Event-RGB Stereo Systems
 
 **Nico Hessenthaler**, **Adam T. Müller**, and **Nicolaj C. Stache**
 
@@ -10,6 +10,9 @@ _Published at [BMVC 2026]_
 [![Paper]()](Link_to_Paper)
 
 </div>
+> [!CAUTION]
+> **Note:** This tool has been tested on **Windows 11** and **Linux (Ubuntu 24.04)** with **Python 3.12**.
+> We recommend using **Linux** for the calibration workflow, as the OpenEB installation on Windows requires compiling the SDK from source, which significantly increases setup time.
 
 ---
 
@@ -99,7 +102,7 @@ ldconfig -p | grep turbojpeg
 
 #### Windows
 
-Download the precompiled installer (`libjpeg-turbo-3.x.x-vc64.exe`) from the [releases page](https://github.com/libjpeg-turbo/libjpeg-turbo/releases) and run it. Ensure that the **"Add to PATH"** option is selected during installation.
+Download the precompiled installer (`libjpeg-turbo-3.x.x-vc64.exe`) from the [releases page](https://github.com/libjpeg-turbo/libjpeg-turbo/releases) and run it.
 
 ---
 
@@ -185,7 +188,7 @@ uv venv --python 3.12.12
 
 ### Linux
 
-Activate the environment and install dependencies:
+Activate the environment and synchronize dependencies:
 
 ```bash
 source .venv/bin/activate
