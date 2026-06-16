@@ -263,11 +263,72 @@ Additional parameters can be tuned depending on your experimental setup:
 
 ## 5. Running the Calibration Tool
 
-Once all prerequisites are installed and the configuration is adapted to your hardware setup, start the calibration GUI with:
+Once all prerequisites are installed and the configuration is adapted to your hardware setup, start the calibration GUI in the virtual environment with:
 
 ```bash
 python main.py
 ```
+
+---
+
+## 6. Using the Calibration Tool
+
+### Overview
+
+The calibration tool provides a graphical user interface (GUI) built with Flet for performing cross-modal calibration between event-based and RGB cameras. The window opens maximized and displays live feeds from both cameras along with controls for managing the calibration process.
+
+> [!TIP]
+> **Screenshot:** A screenshot of the GUI will be added here.
+
+### GUI Elements
+
+The GUI is organized into the following sections (from top to bottom):
+
+| Element | Description |
+|---------|-------------|
+| **Status Bar** | A blue banner at the top displaying the current calibration status and phase. Shows messages such as "Pinging UR5e Robot", "Handheld Calibration", or the specific robot-assisted phase (e.g., "Phase 1 - RGB Intrinsic"). |
+| **Generate Target Button** | Generates a hybrid ChArUco calibration target as both a video file (for playback on a display) and an Arduino bitmap (for OLED/LCD displays). The generated files include the temporally modulated, blended pattern required for simultaneous event and RGB observation. |
+| **Square Size Controls** | A `+`/`-` button pair with a numeric display showing the current ChArUco board square size in meters (adjustable in 1 mm increments). This value must match the physical calibration target you are using. |
+| **Live Camera Feeds** | Two side-by-side image panels labeled "RGB Camera:" and "Event-Based Camera:". These show real-time frames from each sensor. During calibration, detected ChArUco corners and ArUco markers are overlaid on the feeds for visual verification. |
+| **Countdown Timer** | A progress ring widget that displays the time remaining until the next synchronized image capture. Visible only during handheld calibration mode. |
+| **Start / Stop Calibration Button** | The primary control button. Starts as a disabled gray "Start Calibration" button, becomes enabled (blue) once both cameras are initialized and running. While calibration is active, it switches to a red "Stop Calibration" button for aborting the process. |
+
+### Calibration Modes
+
+The tool automatically detects whether a UR5e robotic arm is reachable (using the IP address configured in `stereo_calibration.ini`) and selects the appropriate calibration mode:
+
+#### Robot-Assisted Calibration (3 Phases)
+
+If the UR5e robot is reachable, the tool performs a structured three-phase calibration with the robot moving to predefined positions for each capture:
+
+| Phase | Name | Description |
+|-------|------|-------------|
+| **Phase 1** | RGB Intrinsic | The robot moves the RGB camera through a grid of poses while capturing images. Corner detection is active only for the RGB camera during this phase. |
+| **Phase 2** | Event Intrinsic | The robot moves the event camera through a similar grid of poses. Corner detection is active only for the event camera during this phase. |
+| **Phase 3** | Stereo Extrinsic | Both cameras capture synchronized frames as the robot moves through poses, enabling extrinsic (relative pose) estimation between the two sensors. |
+
+During robot-assisted calibration, the status bar updates to reflect the current phase, and the countdown timer is hidden since captures are triggered by the robot's position signals rather than a fixed interval.
+
+#### Handheld Calibration (Single Phase)
+
+If no robot is detected, the tool switches to handheld mode. In this mode:
+
+- **All calibration steps are performed simultaneously.** Both intrinsic parameters (for each camera) and the stereo extrinsic transformation are estimated from the same set of captures.
+- The countdown timer becomes visible, indicating the interval between synchronized captures.
+- Simply hold the calibration target in front of both cameras and move it to different positions and orientations while the tool runs.
+- Corner detection is active for **both** cameras at all times.
+
+> [!NOTE]
+> **Recommendation:** Robot-assisted calibration generally produces more accurate results due to precise, repeatable poses. Handheld mode is convenient for quick setups but requires sufficient variety in target poses for robust estimation.
+
+### Workflow
+
+1. **Launch the tool** with `python main.py` and wait for both cameras to initialize (the "Start Calibration" button will turn blue).
+2. **Adjust the square size** using the `+`/`-` buttons if your calibration target differs from the default.
+3. **(Optional)** Click "Generate Target" to create a hybrid ChArUco target video and Arduino bitmap for your display.
+4. **Click "Start Calibration"** to begin. The status bar will indicate whether robot-assisted or handheld mode is active.
+5. **Collect sufficient poses** by moving the calibration target (handheld) or letting the robot cycle through positions (robot-assisted).
+6. **Click "Stop Calibration"** (or wait for the robot to complete all phases) to finalize. Results will be saved to the `data/` directory.
 
 ---
 
