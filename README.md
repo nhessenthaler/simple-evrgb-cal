@@ -113,6 +113,7 @@ sudo apt -y install metavision-openeb
 ##### Windows
 Follow the installation guideline for OpenEB on Windows provided in the Prophesee docs, since the process is too umfangreich to be documented here (compilation from scratch, no pre-compiled packages available.).
 https://docs.prophesee.ai/stable/installation/windows_openeb.html#upgrading-openeb
+
 ---
 
 ### 2. Clone the repository
