@@ -104,7 +104,7 @@ sudo apt -y install metavision-openeb
 ```
 ##### Windows
 
-***
+___
 ### 2. Clone the repository
 
 To set up a local copy of this project, clone the repository using Git. Open your terminal or command prompt and run the following commands:
