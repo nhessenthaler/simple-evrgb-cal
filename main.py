@@ -11,11 +11,15 @@ License: Apache License Version 2.0
 Contact: nico.hessenthaler@hs-heilbronn.de
 """
 
-import sys
+import os
 import platform
+import sys
 
 if platform.system() == "Linux":
     sys.path.append("/usr/lib/python3/dist-packages/")
+
+    # Silence Qt warnings before OpenCV loads its binaries
+    os.environ["QT_LOGGING_RULES"] = "*.warning=false"
 
 import flet as ft
 from src.gui import gui_build_and_run
