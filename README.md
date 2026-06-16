@@ -39,6 +39,9 @@ _Published at [BMVC 2026]_
 > **Note:** This tool has been tested on **Windows 11** and **Linux (Ubuntu 24.04)** with **Python 3.12** with a display resolution for the GUI of **1920x1080** pixel.
 > We recommend using **Linux** for the calibration workflow, as the OpenEB installation on Windows requires compiling the SDK from source, which significantly increases setup time.
 
+> [!TIP]
+> **Adapting to a Different Hardware Setup:** This tool was developed and tested with an **IDS uEye RGB camera** and a **Prophesee EVK4 event camera**. However, the calibration principle is not tied to this specific hardware combination. If your setup uses different sensors, you can reuse the pre-generated calibration target from the `data/` directory and the calibration routines in `src/core/calibration.py` (ChArUco detection, intrinsic estimation, stereo extrinsic computation) directly. Simply replace the camera interface modules (`src/core/ueye.py` and `src/core/prophesee.py`) with drivers for your own hardware, feed the captured frames into the existing calibration pipeline, and the rest of the workflow remains unchanged.
+
 ## 1. Prerequisites
 
 Before proceeding with the installation, ensure that all required dependencies are installed on your system.
