@@ -30,6 +30,8 @@ _Published at [BMVC 2026]_
 3. [Virtual Environment Setup](#3-virtual-environment-setup)
 4. [Configuration](#4-configuration)
 5. [Running the Calibration Tool](#5-running-the-calibration-tool)
+6. [Using the Calibration Tool](#6-using-the-calibration-tool)
+7. [Project Structure](#7-project-structure)
 
 ---
 
@@ -329,6 +331,43 @@ If no robot is detected, the tool switches to handheld mode. In this mode:
 4. **Click "Start Calibration"** to begin. The status bar will indicate whether robot-assisted or handheld mode is active.
 5. **Collect sufficient poses** by moving the calibration target (handheld) or letting the robot cycle through positions (robot-assisted).
 6. **Click "Stop Calibration"** (or wait for the robot to complete all phases) to finalize. Results will be saved to the `data/` directory.
+
+---
+
+## 7. Project Structure
+
+A high-level overview of the repository layout:
+
+```
+simple-evrgb-cal/
+├── main.py                          # Entry point — initializes and launches the Flet GUI
+├── pyproject.toml                   # Project metadata and Python dependencies (managed by uv)
+├── data/                            # Output directory for calibration results (JSON) and
+│                                    # input assets such as the ChArUco board firmware header
+│   └── flicker_calib_board/         # Arduino sketch and bitmap header for OLED/LCD target display
+├── parameter/                       # All .ini configuration files (hardware parameters, target
+│                                    # geometry, robot IP, camera settings — edit before first use)
+└── src/
+    ├── core/                        # Backend logic (no GUI dependencies)
+    │   ├── calibration.py           # ChArUco detection, intrinsic & extrinsic computation,
+    │   │                            # calibration target generation, result serialization
+    │   ├── stereo_calibration.py    # Top-level calibration orchestrator (handheld & robot modes)
+    │   ├── prophesee.py             # Prophesee event camera interface (capture, event-to-frame)
+    │   ├── ueye.py                  # IDS uEye RGB camera interface (capture, settings)
+    │   ├── metavision.py            # Thin wrappers around the Metavision / OpenEB SDK
+    │   ├── universal_robots.py      # UR5e robot communication and pose calculation
+    │   ├── image_processing.py      # General-purpose image utilities (thresholding, encoding)
+    │   ├── multiprocessing.py       # Shared-memory buffers for inter-process frame transfer
+    │   ├── optics.py                # Optical calculations (FoV, sensor dimensions)
+    │   ├── operating_system.py      # Logging helpers, timers, filesystem utilities
+    │   ├── enums.py                 # Shared enumerations (CameraType, CalibrationPhase, …)
+    │   └── ur_scripts/              # URScript programs uploaded to the UR5e during calibration
+    └── gui/
+        ├── stereo_calibration.py    # Main GUI class — wires camera streams, controls, and
+        │                            # calibration logic into the Flet application window
+        ├── flet_controls.py         # Reusable custom Flet widgets (styled buttons, etc.)
+        └── assets/                  # Static GUI assets (icons, images)
+```
 
 ---
 
