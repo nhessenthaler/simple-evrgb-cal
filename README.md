@@ -1,175 +1,258 @@
 
 # Simplified Cross-Modal Calibration for Heterogeneous Event-RGB Stereo Systems
 
-This repository contains the official implementation and source code for the academic paper:
-**"Simplified Cross-Modal Calibration for Heterogeneous Event-RGB Stereo Systems"** (Published at [BMVC, 2026])  
+<div align="center">
 
-*Authors: Nico Hessenthaler, Adam T. Müller, and Nicolaj C. Stache* 
-Topics: event-camera, stereo-vision, calibration, cross-modal, computer-vision, rgb-event  
-[![Paper]()]([Link_to_Paper]) 
+**Nico Hessenthaler**, **Adam T. Müller**, and **Nicolaj C. Stache**
 
+_Published at [BMVC 2026]_
 
->**Abstract:**
+[![Paper]()](Link_to_Paper)
+
+</div>
 
 ---
 
-## Getting Started
+> **Abstract:**
+>
+> Accurate extrinsic calibration between event-based and frame-based cameras remains a practical bottleneck for heterogeneous stereo systems. Existing approaches often require sensor or target motion, precise synchronization, or computationally expensive event-to-image reconstruction using neural networks. We propose a simple, motion-free cross-modal calibration framework that uses a temporally modulated, blended ChArUco target presented on standard consumer displays. By alternating between the original pattern and a partially blended version, the target reliably triggers events while remaining continuously observable to a frame-based camera, avoiding blank frames and reducing synchronization constraints. We discretize events into frames coarsely aligned with the RGB images, apply lightweight denoising, and perform ChArUco-based intrinsic and stereo extrinsic calibration. Extensive experiments analyze operating conditions and robustness, including the influence of blending opacity, display brightness, external illumination disturbances, and handheld acquisition. Compared to both a reconstruction-based baseline (E2Calib) and a ChArUco-adapted variant of this baseline, our approach reduces the mean reprojection error by up to 66 % and yields more robust stereo extrinsic estimation, all while substantially simplifying the calibration procedure. Finally, we demonstrate practical utility in a robotic eye-to-hand calibration case study, showing consistent transformations and stable downstream geometric measurements even under partial occlusions.
 
-### 1. Install prerequesites
+---
 
-#### uv
-Use the UV package installer to create a virtual environment and manage the required Python packages very easily and fast.
+## Table of Contents
 
-##### Linux
-You can install uv with a single standalone script:
+1. [Prerequisites](#1-prerequisites)
+   - [uv Package Manager](#uv-package-manager)
+   - [libjpeg-turbo](#libjpeg-turbo)
+   - [IDS uEye SDK](#ids-ueye-sdk)
+   - [OpenEB (Metavision SDK)](#openeb-metavision-sdk)
+2. [Installation](#2-installation)
+3. [Virtual Environment Setup](#3-virtual-environment-setup)
+4. [Configuration](#4-configuration)
+5. [Running the Calibration Tool](#5-running-the-calibration-tool)
+
+---
+
+## 1. Prerequisites
+
+Before proceeding with the installation, ensure that all required dependencies are installed on your system.
+
+### uv Package Manager
+
+[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver used to manage the virtual environment and project dependencies.
+
+#### Linux
+
+Install uv using the official installer script:
 ```
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
-##### Windows
-To install uv on Windows, perform the following steps:
-1. Click the Start menu, type PowerShell, and open it.
-2. Copy and paste the following command, then hit enter:
-```
+#### Windows
+
+1. Open **PowerShell** (search for "PowerShell" in the Start menu).
+2. Execute the following command:
+
+```powershell
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
-3. Restart your terminal. Close PowerShell and open a fresh window so your system registers the new PATH changes.
-<br>
-<br>
 
-#### Turbo JPEG
-##### Linux
-Download latest libjpeg-turbo tar ball from the releases: https://github.com/libjpeg-turbo/libjpeg-turbo/releases ( version > 3 is required). Then install all dependencies for the installation:
+3. Restart your terminal to apply the updated `PATH` environment variable.
+
+---
+
+### libjpeg-turbo
+
+libjpeg-turbo is required for efficient JPEG encoding during image capture. Version **3.x** or higher is mandatory.
+
+#### Linux
+
+Download the latest source tarball from the [libjpeg-turbo releases page](https://github.com/libjpeg-turbo/libjpeg-turbo/releases), then install the build dependencies:
 ```
 sudo apt update
 sudo apt install build-essential cmake nasm
 ```
-Extract the tar ball:
-```
+Extract the archive and configure the build:
+
+```bash
 tar -xvzf libjpeg-turbo-3.1.4.1.tar.gz
 cd libjpeg-turbo-3.1.4.1
 ```
-Build the package:
-```
+
+Compile and install:
+
+```bash
 mkdir build && cd build
 cmake -G"Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/usr ..
 make -j$(nproc)
 sudo make install
 ```
-Update the cache:
-```
+
+Refresh the shared library cache and verify the installation:
+
+```bash
 sudo ldconfig
 ```
-Check the installation:
-```
+
+```bash
 ldconfig -p | grep turbojpeg
 ```
 
-##### Windows
-Download latest libjpeg-turbo .exe (libjpeg-turbo-3.x.x-vc64.exe) from the releases: https://github.com/libjpeg-turbo/libjpeg-turbo/releases ( version > 3 is required). Then run the .exe installer. Make sure to tick the box that says "Add to PATH".
-<br>
-<br>
+#### Windows
 
-#### IDS uEye
-Make sure to install the drivers required to capture RGB images with the uEye camera.
-##### Linux
-1. Visit the IDS download center https://de.ids-imaging.com/downloads.html and select the version of your uEye camera.
-2. Download the latest IDS Software Suite for Linux (Debian Package).
-3. Extract the .tgz by double clicking it.
-4. Navigate to the extracted directory and open a terminal.
-5. Install all dependencies with the following command:
-```
+Download the precompiled installer (`libjpeg-turbo-3.x.x-vc64.exe`) from the [releases page](https://github.com/libjpeg-turbo/libjpeg-turbo/releases) and run it. Ensure that the **"Add to PATH"** option is selected during installation.
+
+---
+
+### IDS uEye SDK
+
+The IDS uEye SDK provides drivers and APIs for capturing RGB images with IDS uEye cameras.
+
+#### Linux
+
+1. Visit the [IDS Download Center](https://de.ids-imaging.com/downloads.html) and select your camera model.
+2. Download the latest **IDS Software Suite for Linux** (Debian package).
+3. Extract the downloaded `.tgz` archive.
+4. Navigate to the extracted directory and install the packages:
+```bash
 sudo apt install ./ueye-api*.deb ./ueye-common*.deb ./ueye-demos*.deb ./ueye-dev*.deb ./ueye-driver-eth*.deb ./ueye-driver-usb*.deb ./ueye-tools-cli*.deb ./ueye-tools-qt5*.deb ./ueye-interfaces-halcon*.deb
 ```
-6. Navigate to the installation folder in /opt/ids/ueye/bin and double click on idscameramanager to launch the GUI for the camera manager.
-7. Try to open your connected camera via camera manager. If it is not working instantly, use the manager to configure the IP adress or to upload a matching starter firmware.
 
-##### Windows
-1. Visit the IDS download center https://de.ids-imaging.com/downloads.html and select the version of your uEye camera.
-2. Download the latest IDS Software Suite for Windows 11.
-3. Unpack the downloaded .zip file.
-4. Run the installer .exe file that will guide you through the installation process.
-<br>
-<br>
+5. Launch the camera manager by executing `idscameramanager` in `/opt/ids/ueye/bin`.
+6. Verify that your camera is detected. If necessary, use the manager to configure the IP address or upload a compatible firmware.
 
-#### OpenEB (Metavision SDK)
-Make sure to install the OpenEB or Metavision SDK drivers required to capture events with the Prophesee event-based camera.
-##### Linux
-This installation guide relates to Ubuntu 24.04 with Python 3.12.
-Install the JFrog server signing public key:
+#### Windows
+
+1. Visit the [IDS Download Center](https://de.ids-imaging.com/downloads.html) and select your camera model.
+2. Download the latest **IDS Software Suite for Windows 11**.
+3. Extract the downloaded `.zip` archive.
+4. Run the installer and follow the on-screen instructions.
+
+---
+
+### OpenEB (Metavision SDK)
+
+The OpenEB / Metavision SDK provides drivers and APIs for capturing events from Prophesee event-based cameras.
+
+#### Linux
+
+_The following instructions apply to Ubuntu 24.04 with Python 3.12._
+
+Import the JFrog signing key:
 ```
 sudo apt -y install curl
 curl -L https://propheseeai.jfrog.io/artifactory/api/security/keypair/prophesee-gpg/public >/tmp/propheseeai.jfrog.op.asc
 sudo cp /tmp/propheseeai.jfrog.op.asc /etc/apt/trusted.gpg.d
 ```
-Add the OpenEB repository of Prophesee’s JFROG server to the list of APT repositories with this command:
-```
+Add the OpenEB repository and install the SDK:
+```bash
 sudo add-apt-repository 'https://propheseeai.jfrog.io/artifactory/openeb-debian/'
 ```
-Update the list of repositories/packages and install OpenEB:
-```
+
+```bash
 sudo apt update
 sudo apt -y install metavision-openeb
 ```
-##### Windows
-Follow the installation guideline for OpenEB on Windows provided in the Prophesee docs, since the process is too umfangreich to be documented here (compilation from scratch, no pre-compiled packages available.).
-https://docs.prophesee.ai/stable/installation/windows_openeb.html#upgrading-openeb
+
+#### Windows
+
+Installation on Windows requires compiling the SDK from source. Refer to the official [Prophesee documentation](https://docs.prophesee.ai/stable/installation/windows_openeb.html#upgrading-openeb) for detailed instructions.
 
 ---
 
-### 2. Clone the repository
+## 2. Installation
 
-To set up a local copy of this project, clone the repository using Git. Open your terminal or command prompt and run the following commands:
+Clone this repository and navigate into the project directory:
 
-bash
-#### Clone the repository
-```
+```bash
 git clone git@github.com:nhessenthaler/simple-evrgb-cal.git
 ```
 
-#### Navigate into the project directory
-```
+```bash
 cd simple-evrgb-cal
 ```
 
 ---
 
-### 3. Setup of virtual environment
-It is recommended to run the cross-modal stereo calibration tool in a virtual uv environment. Thus, create a virtual environment in the project directory with the following command (terminal in Linux, PowerShell in Windows):
-```
+## 3. Virtual Environment Setup
+
+We recommend using `uv` to create an isolated virtual environment for the calibration tool.
+
+Create the virtual environment (Python 3.12.12):
+
+```bash
 uv venv --python 3.12.12
 ```
-##### Linux
-Then, activate the virtual environment:
-```
+
+### Linux
+
+Activate the environment and install dependencies:
+
+```bash
 source .venv/bin/activate
 ```
-Synchronize the packages specified in the pyproject.toml in the virtual environment:
-```
+
+```bash
 uv sync
 ```
-##### Windows
-On Windows, first allow the activation of a uv environment:
-```
+
+### Windows
+
+First, allow script execution for the current session:
+
+```powershell
 Set-ExecutionPolicy -ExecutionPolicy Bypass -Scope Process
 ```
-Then, activate the virtual environment:
-```
+
+Then activate the environment and synchronize dependencies:
+
+```powershell
 .venv\Scripts\activate
 ```
-Synchronize the packages specified in the pyproject.toml in the virtual environment:
-```
+
+```powershell
 uv sync
 ```
 
 ---
 
-### 4. Adapt configuration
+## 4. Configuration
+
+_[To be documented.]_
 
 ---
 
-### 5. Start the calibration tool
-Start the GUI of the cross-modal stereo calibration tool:
-```
+## 5. Running the Calibration Tool
+
+Once all prerequisites are installed and the configuration is adapted to your hardware setup, start the calibration GUI with:
+
+```bash
 python main.py
 ```
+
+---
+
+## Citation
+
+If you use this work in a research paper, please cite our publication:
+
+```bibtex
+@inproceedings{hessenthaler2026simplified,
+  title={Simplified Cross-Modal Calibration for Heterogeneous Event-RGB Stereo Systems},
+  author={Hessenthaler, Nico and M{\"u}ller, Adam T. and Stache, Nicolaj C.},
+  booktitle={British Machine Vision Conference (BMVC)},
+  year={2026}
+}
+```
+
+---
+
+## License
+
+This project is licensed under the terms of the [LICENSE](LICENSE) file.
+
+---
+
+## Keywords
+
+_Event Camera · Stereo Vision · Calibration · Cross-Modal · Computer Vision · RGB-Event Fusion_
 
