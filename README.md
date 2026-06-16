@@ -33,7 +33,7 @@ To install uv on Windows, perform the following steps:
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 3. Restart your terminal. Close PowerShell and open a fresh window so your system registers the new PATH changes.
-
+---
 #### Turbo JPEG
 ##### Linux
 Download latest libjpeg-turbo tar ball from the releases: https://github.com/libjpeg-turbo/libjpeg-turbo/releases ( version > 3 is required). Then install all dependencies for the installation:
@@ -65,6 +65,7 @@ ldconfig -p | grep turbojpeg
 ##### Windows
 Download latest libjpeg-turbo .exe (libjpeg-turbo-3.x.x-vc64.exe) from the releases: https://github.com/libjpeg-turbo/libjpeg-turbo/releases ( version > 3 is required). Then run the .exe installer. Make sure to tick the box that says "Add to PATH".
 
+---
 #### IDS uEye
 Make sure to install the drivers required to capture RGB images with the uEye camera.
 ##### Linux
@@ -81,7 +82,7 @@ sudo apt install ./ueye-api*.deb ./ueye-common*.deb ./ueye-demos*.deb ./ueye-dev
 
 ##### Windows
 
-
+---
 #### OpenEB (Metavision SDK)
 Make sure to install the OpenEB or Metavision SDK drivers required to capture events with the Prophesee event-based camera.
 ##### Linux
@@ -110,7 +111,9 @@ To set up a local copy of this project, clone the repository using Git. Open you
 
 bash
 #### Clone the repository
-git clone [https://github.com/nhessenthaler/simple-evrgb-cal.git](https://github.com/nhessenthaler/simple-evrgb-cal.git)
+```
+git clone git@github.com:nhessenthaler/simple-evrgb-cal.git
+```
 
 #### Navigate into the project directory
 ```
