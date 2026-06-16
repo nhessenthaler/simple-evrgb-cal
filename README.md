@@ -33,7 +33,8 @@ To install uv on Windows, perform the following steps:
 powershell -ExecutionPolicy ByPass -c "irm https://astral.sh/uv/install.ps1 | iex"
 ```
 3. Restart your terminal. Close PowerShell and open a fresh window so your system registers the new PATH changes.
----
+<br>
+<br>
 #### Turbo JPEG
 ##### Linux
 Download latest libjpeg-turbo tar ball from the releases: https://github.com/libjpeg-turbo/libjpeg-turbo/releases ( version > 3 is required). Then install all dependencies for the installation:
@@ -64,8 +65,8 @@ ldconfig -p | grep turbojpeg
 
 ##### Windows
 Download latest libjpeg-turbo .exe (libjpeg-turbo-3.x.x-vc64.exe) from the releases: https://github.com/libjpeg-turbo/libjpeg-turbo/releases ( version > 3 is required). Then run the .exe installer. Make sure to tick the box that says "Add to PATH".
-
----
+<br>
+<br>
 #### IDS uEye
 Make sure to install the drivers required to capture RGB images with the uEye camera.
 ##### Linux
@@ -81,8 +82,8 @@ sudo apt install ./ueye-api*.deb ./ueye-common*.deb ./ueye-demos*.deb ./ueye-dev
 7. Try to open your connected camera via camera manager. If it is not working instantly, use the manager to configure the IP adress or to upload a matching starter firmware.
 
 ##### Windows
-
----
+<br>
+<br>
 #### OpenEB (Metavision SDK)
 Make sure to install the OpenEB or Metavision SDK drivers required to capture events with the Prophesee event-based camera.
 ##### Linux
@@ -104,7 +105,8 @@ sudo apt -y install metavision-openeb
 ```
 ##### Windows
 
-___
+---
+
 ### 2. Clone the repository
 
 To set up a local copy of this project, clone the repository using Git. Open your terminal or command prompt and run the following commands:
@@ -120,6 +122,8 @@ git clone git@github.com:nhessenthaler/simple-evrgb-cal.git
 cd simple-evrgb-cal
 ```
 
+---
+
 ### 3. Setup of virtual environment
 It is recommended to run the cross-modal stereo calibration tool in a virtual uv environment. Thus, create a virtual environment with the following command:
 ```
@@ -134,11 +138,13 @@ Synchronize the packages specified in the pyproject.toml in the virtual environm
 uv sync
 ```
 
+---
 
-### 3. Adapt configuration
+### 4. Adapt configuration
 
+---
 
-### 4. Start the calibration tool
+### 5. Start the calibration tool
 Start the GUI of the cross-modal stereo calibration tool:
 ```
 python main.py
