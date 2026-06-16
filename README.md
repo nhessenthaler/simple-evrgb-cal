@@ -22,7 +22,7 @@ _Published at [BMVC 2026]_
 ## Table of Contents
 
 1. [Prerequisites](#1-prerequisites)
-   - [uv Package Manager](#uv-package-manager)
+   - [Uv Package Manager](#uv-package-manager)
    - [libjpeg-turbo](#libjpeg-turbo)
    - [IDS uEye SDK](#ids-ueye-sdk)
    - [OpenEB (Metavision SDK)](#openeb-metavision-sdk)
@@ -41,9 +41,9 @@ _Published at [BMVC 2026]_
 
 Before proceeding with the installation, ensure that all required dependencies are installed on your system.
 
-### uv Package Manager
+### Uv Package Manager
 
-[uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver used to manage the virtual environment and project dependencies.
+[Uv](https://github.com/astral-sh/uv) is a fast Python package installer and resolver used to manage the virtual environment and project dependencies.
 
 #### Linux
 
@@ -221,7 +221,37 @@ uv sync
 
 ## 4. Configuration
 
-_[To be documented.]_
+All configuration parameters are stored as `.ini` files in the `parameter/` directory. Before running the calibration tool, you must adapt the following settings to your hardware setup. Parameters marked with **TBD** in the source files require user input.
+
+### Required Parameters
+
+The table below lists all parameters that must be configured before use:
+
+| Parameter | File | Section | Description |
+|-----------|------|---------|-------------|
+| `serial_number` | `camera.ini` | `[prophesee]` | Serial number of the Prophesee event camera. |
+| `turbojpeg_dll_path` | `flet.ini` | `[flet]` | Path to the TurboJPEG library (`turbojpeg.dll` on Windows, `libturbojpeg.so.0` on Linux). |
+| `focal_length` | `intrinsic_calibration_12mm_prophesee.ini` | `[prophesee_lens]` | Focal length of the Prophesee camera lens in meters. |
+| `focal_length` | `intrinsic_calibration_12mm_ueye.ini` | `[ueye_lens]` | Focal length of the uEye camera lens in meters. |
+| `target_rows` | `stereo_calibration.ini` | `[target]` | Number of rows in the ChArUco calibration target pattern. |
+| `target_columns` | `stereo_calibration.ini` | `[target]` | Number of columns in the ChArUco calibration target pattern. |
+| `target_square_size` | `stereo_calibration.ini` | `[target]` | Physical size of a single square in the calibration target (meters). |
+| `target_marker_size_fraction` | `stereo_calibration.ini` | `[target]` | Fraction of the square size used for the ArUco marker dimensions. |
+| `robot_ip` | `stereo_calibration.ini` | `[ur5e]` | IP address of the UR5e robotic arm controller. |
+
+### Optional Parameters
+
+Additional parameters can be tuned depending on your experimental setup:
+
+| Parameter | File | Section | Description |
+|-----------|------|---------|-------------|
+| `crop_aoi` | `camera.ini` | `[ueye]` | Region of interest for cropping the uEye image to match the event camera's field of view. |
+| `exposure_time`, `gain_value`, `gamma_value` | `camera.ini` | `[ueye]` | Exposure, gain, and gamma settings for the uEye camera. |
+| `wb_red_gain`, `wb_green_gain`, `wb_blue_gain` | `camera.ini` | `[ueye]` | White balance gains for the uEye camera. |
+| `positional_offset_x` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Lateral offset between the Prophesee and uEye camera centers (meters). |
+| `distance_to_target` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Distance from the camera lens to the calibration target surface (meters). |
+| `calibration_rows`, `calibration_columns` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Grid dimensions for robot-guided calibration poses (must be odd). |
+| `max_roll`, `max_pitch`, `max_yaw` | `intrinsic_calibration_*.ini` | `[*_calibration]` | Maximum rotation angles for the robot arm during calibration (degrees). |
 
 ---
 
