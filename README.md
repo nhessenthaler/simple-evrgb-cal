@@ -401,7 +401,7 @@ This application incorporates open-source third-party software. The licenses and
 | 3 | `PyTurboJPEG` | MIT License | Lilo Huang |
 | 4 | `pyserial` | BSD License | Chris Liechti |
 | 5 | `pyueye` | 3-Clause BSD License | IDS Imaging Development Systems GmbH |
-| 6 | `ur_rtde` | MIT License | 2019–2021 Anders Prier Lindvig |
+| 6 | `ur_rtde` | MIT License | Anders Prier Lindvig |
 | 7 | `OpenEB` | Apache License 2.0 | Prophesee S.A. |
 
 
