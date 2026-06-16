@@ -109,10 +109,10 @@ sudo apt -y install metavision-openeb
 To set up a local copy of this project, clone the repository using Git. Open your terminal or command prompt and run the following commands:
 
 bash
-# Clone the repository
+#### Clone the repository
 git clone [https://github.com/nhessenthaler/simple-evrgb-cal.git](https://github.com/nhessenthaler/simple-evrgb-cal.git)
 
-# Navigate into the project directory
+#### Navigate into the project directory
 ```
 cd simple-evrgb-cal
 ```
