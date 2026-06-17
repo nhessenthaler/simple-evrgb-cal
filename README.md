@@ -229,9 +229,12 @@ uv sync
 >    ```powershell
 >    uv venv --python 3.12.12 --system-site-packages
 >    ```
-> 2. **Activate** the environment again:
+> 2. **Activate** the environment again and sync the packages:
 >    ```powershell
 >    .venv\Scripts\activate
+>    ```
+>    ```powershell
+>    uv sync
 >    ```
 > 3. **Create a `metavision.pth` file** at `.venv\Lib\site-packages\metavision.pth` containing the absolute path to the Metavision SDK Python packages, for example:
 >    ```
