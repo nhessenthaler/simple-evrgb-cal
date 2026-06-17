@@ -229,7 +229,7 @@ uv sync
 >    ```powershell
 >    uv venv --python 3.12.12 --system-site-packages
 >    ```
-> 2. **Activate** the environment again and sync the packages:
+> 2. **Activate** the environment and synchronize the packages again:
 >    ```powershell
 >    .venv\Scripts\activate
 >    ```
