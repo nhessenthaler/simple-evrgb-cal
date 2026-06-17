@@ -222,6 +222,26 @@ Then activate the environment and synchronize dependencies:
 uv sync
 ```
 
+> [!IMPORTANT]
+> **Metavision SDK not recognized?** If `import metavision` fails after activation, the SDK may not be visible inside the virtual environment. Fix this by linking system-site-packages and creating a `.pth` file manually:
+>
+> 1. **Recreate the virtual environment** with system-site-packages linked:
+>    ```powershell
+>    uv venv --python 3.12.12 --system-site-packages
+>    ```
+> 2. **Activate** the environment again:
+>    ```powershell
+>    .venv\Scripts\activate
+>    ```
+> 3. **Create a `metavision.pth` file** at `.venv\Lib\site-packages\metavision.pth` containing the absolute path to the Metavision SDK Python packages, for example:
+>    ```
+>    C:\Program Files\Prophesee\lib\python3\site-packages
+>    ```
+> 4. Verify the import works:
+>    ```powershell
+>    python -c "import metavision; print(metavision.__version__)"
+>    ```
+
 ---
 
 ## 4. Configuration
